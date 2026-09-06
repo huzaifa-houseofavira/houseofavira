@@ -11,6 +11,47 @@ const VIDEOS = [
   '/videos/live/live-vid-2.mp4'
 ];
 
+const VideoCard = ({ src }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Play when at least 50% visible
+          videoRef.current?.play().catch(() => {});
+        } else {
+          // Pause when it goes out of view
+          videoRef.current?.pause();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => {
+      if (videoRef.current) observer.unobserve(videoRef.current);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-[260px] h-[460px] md:w-[320px] md:h-[580px] shrink-0 snap-center overflow-hidden bg-gray-100 group rounded-none">
+      <video
+        ref={videoRef}
+        src={src}
+        className="w-full h-full object-cover"
+        muted
+        loop
+        playsInline
+        preload="none"
+      />
+    </div>
+  );
+};
+
 export default function LiveProducts() {
   return (
     <section className="py-16 md:py-24 bg-[#FFFFFF] border-y-[3px] border-[#000000] overflow-hidden">
@@ -27,17 +68,7 @@ export default function LiveProducts() {
         {/* Hide scrollbar using tailwind utility classes, snap scrolling for smooth mobile experience */}
         <div className="flex overflow-x-auto gap-4 md:gap-6 snap-x snap-mandatory pb-8 px-4 sm:px-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {VIDEOS.map((src, idx) => (
-            <div key={idx} className="relative w-[260px] h-[460px] md:w-[320px] md:h-[580px] shrink-0 snap-center overflow-hidden bg-gray-100 group rounded-none">
-              <video
-                src={src}
-                className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-              />
-            </div>
+            <VideoCard key={idx} src={src} />
           ))}
         </div>
       </div>

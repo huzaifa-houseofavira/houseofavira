@@ -18,7 +18,7 @@ export async function GET(request) {
       // Firestore query for equality fields, then filter out CANCELLED in-memory
       const snapshot = await adminDb
         .collection('orders')
-        .where('product_payment_status', 'in', [PRODUCT_PAYMENT_STATUS.CONFIRMED, PRODUCT_PAYMENT_STATUS.PENDING])
+        .where('product_payment_status', '==', PRODUCT_PAYMENT_STATUS.CONFIRMED)
         .where('weight_status', '==', WEIGHT_STATUS.PENDING)
         .get();
 
@@ -31,7 +31,7 @@ export async function GET(request) {
       const snapshot = await adminDb
         .collection('orders')
         .where('order_status', '==', ORDER_STATUS.WEIGHT_ENTERED)
-        .where('product_payment_status', 'in', [PRODUCT_PAYMENT_STATUS.CONFIRMED, PRODUCT_PAYMENT_STATUS.PENDING])
+        .where('product_payment_status', '==', PRODUCT_PAYMENT_STATUS.CONFIRMED)
         .get();
 
       orders = snapshot.docs
