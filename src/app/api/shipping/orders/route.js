@@ -51,7 +51,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error fetching shipping orders:', error);
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch orders.' },
+      { success: false, message: 'Failed to fetch orders.', error: error.message, code: error.code },
       { status: 500 }
     );
   }
