@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { BarChart3, ShoppingBag, Users, User, Phone, Mail, Loader2, CheckCircle2, Send, X } from 'lucide-react';
 
 export default function CartAnalytics() {
   const [allUsers, setAllUsers] = useState([]);
   const [abandonedCarts, setAbandonedCarts] = useState([]);
+  const [actualRevenue, setActualRevenue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('carts'); // 'carts' or 'users'
   const [sendingIds, setSendingIds] = useState(new Set());
@@ -153,6 +154,19 @@ export default function CartAnalytics() {
           }
         });
         
+        // Fetch confirmed orders to calculate actual revenue
+        const ordersQuery = query(
+          collection(db, 'orders'),
+          where('product_payment_status', '==', 'CONFIRMED')
+        );
+        const ordersSnapshot = await getDocs(ordersQuery);
+        let actualRev = 0;
+        ordersSnapshot.forEach((doc) => {
+          const data = doc.data();
+          actualRev += (data.payable_amount || 0);
+        });
+        setActualRevenue(actualRev);
+
         // Sort by total descending for carts
         cartsData.sort((a, b) => b.total - a.total);
         setAbandonedCarts(cartsData);
@@ -166,8 +180,6 @@ export default function CartAnalytics() {
     
     fetchUsersAndCarts();
   }, []);
-
-  const totalPotentialRevenue = abandonedCarts.reduce((total, cart) => total + cart.total, 0);
 
   if (loading) {
     return (
@@ -206,8 +218,8 @@ export default function CartAnalytics() {
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-xs text-[#86868b] font-bold uppercase tracking-wider mb-1">Potential Revenue</p>
-            <h3 className="text-3xl font-bold text-black">₹{totalPotentialRevenue.toFixed(2)}</h3>
+            <p className="text-xs text-[#86868b] font-bold uppercase tracking-wider mb-1">Actual Revenue</p>
+            <h3 className="text-3xl font-bold text-black">₹{actualRevenue.toFixed(2)}</h3>
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ export default function OrderManager({ onAddOrder }) {
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     async function fetchAllOrders() {
@@ -62,6 +63,11 @@ export default function OrderManager({ onAddOrder }) {
   }
 
   const filteredOrders = orders.filter(order => {
+    // Apply status filter
+    if (statusFilter === 'paid' && order.product_payment_status !== 'CONFIRMED') return false;
+    if (statusFilter === 'placed' && order.order_status !== 'PLACED') return false;
+
+    // Apply search filter
     if (!searchTerm) return true;
     const s = searchTerm.replace(/#/g, '').toLowerCase();
     return (
@@ -74,35 +80,71 @@ export default function OrderManager({ onAddOrder }) {
 
   return (
     <div className="bg-white rounded-2xl border border-[#d2d2d7]/50 shadow-sm overflow-hidden font-dm-sans">
-      <div className="p-6 border-b border-[#d2d2d7]/50 bg-[#FAFAFA] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="p-6 border-b border-[#d2d2d7]/50 bg-[#FAFAFA] flex flex-col xl:flex-row xl:justify-between xl:items-center gap-4">
         <div>
           <h2 className="text-xl font-semibold text-black tracking-tight">Recent Orders</h2>
           <p className="text-sm text-[#86868b] mt-1">View all store orders.</p>
           {error && <p className="text-sm text-red-500 mt-2">Error: {error}</p>}
         </div>
         
-        <div className="flex items-center gap-3 w-full sm:w-auto flex-1 sm:flex-none justify-end min-w-0">
-          {orders.length > 0 && (
-            <div className="relative w-full sm:w-64 max-w-full">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b]" />
-              <input
-                type="text"
-                placeholder="Search orders..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-white border border-[#d2d2d7] rounded-lg text-sm text-black placeholder-[#86868b] focus:outline-none focus:ring-2 focus:ring-[#0071e3] focus:border-transparent transition-all shadow-sm"
-              />
-            </div>
-          )}
-          {onAddOrder && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full xl:w-auto flex-1 xl:flex-none justify-end min-w-0">
+          {/* Status Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar w-full sm:w-auto">
             <button
-              onClick={onAddOrder}
-              className="shrink-0 flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm"
+              onClick={() => setStatusFilter('all')}
+              className={`shrink-0 px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full transition-colors ${
+                statusFilter === 'all' 
+                  ? 'bg-black text-white' 
+                  : 'bg-white text-gray-500 border border-gray-200 hover:border-black hover:text-black'
+              }`}
             >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create Order</span>
+              All Orders
             </button>
-          )}
+            <button
+              onClick={() => setStatusFilter('paid')}
+              className={`shrink-0 px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full transition-colors ${
+                statusFilter === 'paid' 
+                  ? 'bg-green-600 text-white border-green-600' 
+                  : 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
+              }`}
+            >
+              Paid & Confirmed
+            </button>
+            <button
+              onClick={() => setStatusFilter('placed')}
+              className={`shrink-0 px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full transition-colors ${
+                statusFilter === 'placed' 
+                  ? 'bg-yellow-500 text-white border-yellow-500' 
+                  : 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
+              }`}
+            >
+              Only Placed
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {orders.length > 0 && (
+              <div className="relative w-full sm:w-64 max-w-full">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b]" />
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-white border border-[#d2d2d7] rounded-lg text-sm text-black placeholder-[#86868b] focus:outline-none focus:ring-2 focus:ring-[#0071e3] focus:border-transparent transition-all shadow-sm"
+                />
+              </div>
+            )}
+            {onAddOrder && (
+              <button
+                onClick={onAddOrder}
+                className="shrink-0 flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Create Order</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
