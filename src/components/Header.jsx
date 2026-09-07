@@ -66,10 +66,10 @@ const menuData = [
         title: "phone cases", 
         href: "/category/accessories/phone-cases"
       },
-      { title: "hair accessories", href: "/category/accessories/hair" },
-      { title: "belts", href: "/category/accessories/belts" },
+      { title: "hair accessories / wigs", href: "/category/accessories/hair" },
+      { title: "belts / caps", href: "/category/accessories/belts" },
       { 
-        title: "jewellery", 
+        title: "jewelry / watches", 
         href: "/category/accessories/jewellery"
       },
       { title: "nails and nail art supplies", href: "/category/accessories/nails" },

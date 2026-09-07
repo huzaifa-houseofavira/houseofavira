@@ -66,10 +66,10 @@ const subCategoryMeta = {
   'bags/handbags': { title: "Imported Handbags India", desc: "Shop luxury imported handbags — totes, satchels, structured bags & designer-inspired handbags delivered to India." },
   'bags/mini-bags': { title: "Imported Mini Bags India", desc: "Trendy imported mini bags — crossbody, clutches, evening bags & micro bags from international fashion trends." },
   'bags/shoulder-bags': { title: "Imported Shoulder Bags India", desc: "Premium imported shoulder bags — hobo bags, bucket bags & classic shoulder styles from international brands." },
-  'accessories/jewellery': { title: "Imported Jewelry India", desc: "Shop premium imported jewelry — necklaces, rings, bracelets, earrings & minimalist jewelry sets from House of Avira." },
+  'accessories/jewellery': { title: "Imported Jewelry & Watches India", desc: "Shop premium imported jewelry and watches — necklaces, rings, bracelets, earrings & watches from House of Avira." },
   'accessories/phone-cases': { title: "Imported Phone Cases India", desc: "Shop aesthetic imported phone cases for iPhone & Android. Trendy, cute & premium quality phone cases." },
-  'accessories/hair': { title: "Imported Hair Accessories India", desc: "Trendy imported hair accessories — clips, bands, scrunchies & claw clips from international fashion." },
-  'accessories/belts': { title: "Imported Belts India", desc: "Premium imported belts — leather belts, chain belts & fashion belts for men and women." },
+  'accessories/hair': { title: "Imported Hair Accessories & Wigs India", desc: "Trendy imported hair accessories & wigs — clips, bands, scrunchies, claw clips & wigs from international fashion." },
+  'accessories/belts': { title: "Imported Belts & Caps India", desc: "Premium imported belts & caps — leather belts, fashion belts, caps and hats." },
   'accessories/nails': { title: "Imported Nail Art Supplies India", desc: "Shop imported nail art supplies — press-on nails, nail stickers, nail art tools & accessories." },
   'accessories/keychains': { title: "Imported Keychains India", desc: "Cute imported keychains & charms — character keychains, aesthetic keychains & premium key accessories." },
 };

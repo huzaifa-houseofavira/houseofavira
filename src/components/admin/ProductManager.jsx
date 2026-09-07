@@ -34,7 +34,7 @@ const CATEGORY_DATA = [
   },
   {
     title: "Accessories",
-    children: ["phone cases", "hair accessories", "belts", "jewellery", "nails and nail art supplies", "keychains / bag charms", "room decor"]
+    children: ["phone cases", "hair accessories / wigs", "belts / caps", "jewelry / watches", "nails and nail art supplies", "keychains / bag charms", "room decor"]
   },
   {
     title: "Collectibles",

@@ -176,7 +176,9 @@ export default function CategoryClient({ slug = [] }) {
           if (urlSub === 'bottoms' && (dbSub === 'pants / jeans' || dbSub === 'pants/jeans' || dbSub === 'pants' || dbSub === 'jeans' || dbSub === 'skirts' || dbSub === 'shorts')) return true;
           if (urlSub === 'pants-jeans' && (dbSub === 'pants / jeans' || dbSub === 'pants/jeans' || dbSub === 'pants' || dbSub === 'jeans')) return true;
           if (urlSub === 'beach-wear' && dbSub === 'beach wear') return true;
-          if (urlSub === 'hair' && dbSub === 'hair accessories') return true;
+          if (urlSub === 'hair' && (dbSub === 'hair accessories' || dbSub === 'hair accessories / wigs' || dbSub === 'hair accessories/wigs')) return true;
+          if (urlSub === 'belts' && (dbSub === 'belts' || dbSub === 'belts / caps' || dbSub === 'belts/caps')) return true;
+          if ((urlSub === 'jewellery' || urlSub === 'jewelry') && (dbSub === 'jewellery' || dbSub === 'jewelry' || dbSub === 'jewelry / watches' || dbSub === 'jewelry/watches')) return true;
           if (urlSub === 'nails' && dbSub === 'nails and nail art supplies') return true;
           if (urlSub === 'mini-bags' && dbSub === 'mini bags') return true;
           if (urlSub === 'shoulder-bags' && (dbSub === 'shoulder bags' || dbSub === 'sholder bags' || dbSub === 'shoulder bags' || dbSub === 'sholder bags')) return true;
