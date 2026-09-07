@@ -11,17 +11,18 @@ export default function PriceDisplay({ basePrice, className }) {
 
   // To prevent hydration errors, return the base INR price before mount.
   if (!mounted) {
-    return <span className={className}>₹{basePrice.toFixed(2)}</span>;
+    return <span className={className}>₹{(basePrice ?? 0).toFixed(2)}</span>;
   }
 
   let formattedPrice;
+  const safePrice = basePrice ?? 0;
   try {
     formattedPrice = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-    }).format(basePrice);
+    }).format(safePrice);
   } catch (e) {
-    formattedPrice = `₹${basePrice.toFixed(2)}`;
+    formattedPrice = `₹${safePrice.toFixed(2)}`;
   }
 
   return <span className={className}>{formattedPrice}</span>;
