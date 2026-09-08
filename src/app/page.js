@@ -54,6 +54,8 @@ export const metadata = {
   },
 };
 
+export const revalidate = 300;
+
 export default function HomePage() {
   // FAQ Schema for homepage
   const faqSchema = {

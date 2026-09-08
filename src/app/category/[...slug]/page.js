@@ -1,5 +1,7 @@
 import CategoryClient from './CategoryClient';
 
+export const revalidate = 300;
+
 const categoryMeta = {
   women: {
     title: "Imported Women's Clothing India — Premium Dresses, Tops & Luxury Fashion | House of Avira",

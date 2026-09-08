@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, orderBy, query, limit } from 'firebase/firestore';
 import StickyScroll from '@/components/ui/sticky-scroll';
 
 export default function PinterestFeed({ children, products = null }) {
@@ -24,16 +22,15 @@ export default function PinterestFeed({ children, products = null }) {
 
     async function fetchImages() {
       try {
-        const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(30));
-        const snapshot = await getDocs(q);
-        const imgs = [];
-        snapshot.docs.forEach(doc => {
-          const data = doc.data();
+        const res = await fetch('/api/products?limit=30');
+        const products = await res.json();
+        const imgs = products.map(data => {
           const productImages = data.images || (data.imageUrl ? [data.imageUrl] : []);
           if (productImages[0]) {
-            imgs.push({ src: productImages[0], id: doc.id });
+            return { src: productImages[0], id: data.id };
           }
-        });
+          return null;
+        }).filter(Boolean);
         setImages(imgs);
       } catch (err) {
         console.error('PinterestFeed fetch error:', err);

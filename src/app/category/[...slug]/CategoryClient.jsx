@@ -2,8 +2,6 @@
 import { LumaSpin } from '@/components/ui/luma-spin';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { Loader2, SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';

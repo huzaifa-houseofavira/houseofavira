@@ -1,25 +1,44 @@
-import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 import ProductClient from './ProductClient';
 
-// Helper function to fetch product by slug or id
+export const revalidate = 300;
+
+// Helper function to fetch product by slug or id using Admin SDK
 async function getProduct(idOrSlug) {
   try {
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef, where('slug', '==', idOrSlug));
-    const querySnapshot = await getDocs(q);
+    if (!adminDb) return null;
 
-    if (!querySnapshot.empty) {
-      return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+    // Try slug first
+    const slugSnap = await adminDb
+      .collection('products')
+      .where('slug', '==', idOrSlug)
+      .limit(1)
+      .get();
+
+    if (!slugSnap.empty) {
+      const doc = slugSnap.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.()?.toISOString?.() || data.createdAt || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString?.() || data.updatedAt || null,
+      };
     }
-    
-    const docRef = doc(db, 'products', idOrSlug);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
+
+    // Fallback to document ID
+    const docSnap = await adminDb.collection('products').doc(idOrSlug).get();
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.()?.toISOString?.() || data.createdAt || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString?.() || data.updatedAt || null,
+      };
     }
   } catch (error) {
-    console.error("Error fetching product for metadata:", error);
+    console.error('Error fetching product for metadata:', error);
   }
   return null;
 }
@@ -95,7 +114,7 @@ export default async function ProductPage({ params }) {
   const product = await getProduct(resolvedParams.id);
   
   if (!product) {
-    return <ProductClient params={params} />;
+    return <ProductClient params={params} initialProduct={null} />;
   }
 
   const productSlug = product.slug || product.id;
@@ -187,7 +206,7 @@ export default async function ProductPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <ProductClient params={params} />
+      <ProductClient params={params} initialProduct={product} />
     </>
   );
 }

@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 const defaultDesktopSlides = [
   {
@@ -49,23 +47,8 @@ export default function HeroCarousel() {
   useEffect(() => {
     async function fetchMobileBanners() {
       try {
-        const q = query(collection(db, 'mobile_banners'));
-        const querySnapshot = await getDocs(q);
-        let fetchedBanners = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        // Sort by order field if it exists, otherwise by createdAt desc
-        fetchedBanners.sort((a, b) => {
-          if (a.order !== undefined && b.order !== undefined) {
-            return a.order - b.order;
-          }
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return dateB - dateA;
-        });
-        
+        const res = await fetch('/api/banners');
+        const fetchedBanners = await res.json();
         setMobileSlides(fetchedBanners);
       } catch (error) {
         console.error("Error fetching mobile banners:", error);

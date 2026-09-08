@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { db } from '@/lib/firebase';
-import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -16,7 +15,7 @@ import ProductCard from '@/components/ProductCard';
 import OrderJourneyTimeline from '@/components/OrderJourneyTimeline';
 
 
-export default function ProductClient({ params: paramsPromise }) {
+export default function ProductClient({ params: paramsPromise, initialProduct = null }) {
   const params = use(paramsPromise);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,23 +96,13 @@ export default function ProductClient({ params: paramsPromise }) {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        let productData = null;
-        
-        // 1. Try fetching by slug first
-        const productsRef = collection(db, 'products');
-        const q = query(productsRef, where('slug', '==', params.id));
-        const querySnapshot = await getDocs(q);
+        let productData = initialProduct;
 
-        if (!querySnapshot.empty) {
-          const docSnap = querySnapshot.docs[0];
-          productData = { id: docSnap.id, ...docSnap.data() };
-        } else {
-          // 2. Fallback to raw ID lookup for backward compatibility
-          const docRef = doc(db, 'products', params.id);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            productData = { id: docSnap.id, ...docSnap.data() };
-          }
+        // If no server-side data, fetch from cached API
+        if (!productData) {
+          const res = await fetch('/api/products?limit=1000');
+          const allProducts = await res.json();
+          productData = allProducts.find(p => p.slug === params.id || p.id === params.id) || null;
         }
 
         if (productData) {
@@ -122,15 +111,11 @@ export default function ProductClient({ params: paramsPromise }) {
           if (productData.sizes && productData.sizes.length > 0) setSelectedSize(productData.sizes[0]);
           if (productData.swatches && productData.swatches.length > 0) setSelectedColor(productData.swatches[0].color);
 
-          // Fetch Random Products for You Might Like
+          // Fetch Related Products from cached API
           try {
-            const productsRef = collection(db, 'products');
-            const anyQ = query(productsRef, limit(30)); // fetch up to 30 to shuffle
-            const anySnap = await getDocs(anyQ);
-            
-            let allProducts = anySnap.docs
-              .map(d => ({ id: d.id, ...d.data() }))
-              .filter(p => p.id !== productData.id);
+            const res = await fetch('/api/products?limit=30');
+            let allProducts = await res.json();
+            allProducts = allProducts.filter(p => p.id !== productData.id);
             
             // Shuffle array
             for (let i = allProducts.length - 1; i > 0; i--) {
@@ -153,7 +138,7 @@ export default function ProductClient({ params: paramsPromise }) {
       }
     }
     fetchProduct();
-  }, [params.id]);
+  }, [params.id, initialProduct]);
 
   if (loading) {
     return (

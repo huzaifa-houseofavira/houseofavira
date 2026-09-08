@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Truck, Package, CreditCard, Globe, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
-import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 
 export default function WhyHouseOfAvira() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -20,9 +18,11 @@ export default function WhyHouseOfAvira() {
   useEffect(() => {
     async function fetchSlug() {
       try {
-        const docSnap = await getDoc(doc(db, 'products', featuredProductId));
-        if (docSnap.exists() && docSnap.data().slug) {
-          setFeaturedSlug(docSnap.data().slug);
+        const res = await fetch('/api/products?limit=1000');
+        const products = await res.json();
+        const found = products.find(p => p.id === featuredProductId);
+        if (found?.slug) {
+          setFeaturedSlug(found.slug);
         }
       } catch (err) {
         // Keep fallback ID

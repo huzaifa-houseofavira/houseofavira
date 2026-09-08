@@ -1,23 +1,30 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-if (!getApps().length) {
+function initAdmin() {
+  if (getApps().length > 0) {
+    return getFirestore();
+  }
+
   try {
     let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || '';
-    // Clean up literal \n and wrapping quotes
     pk = pk.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
 
-    initializeApp({
+    const app = initializeApp({
       credential: cert({
         projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
         clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
         privateKey: pk,
       }),
     });
-    console.log('Firebase Admin initialized successfully.');
+
+    const db = getFirestore(app);
+    db.settings({ ignoreUndefinedProperties: true });
+    return db;
   } catch (error) {
     console.error('Firebase Admin initialization error:', error.message);
+    return null;
   }
 }
 
-export const adminDb = getApps().length > 0 ? getFirestore() : null;
+export const adminDb = initAdmin();

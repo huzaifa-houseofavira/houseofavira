@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import CatalogueClient from './CatalogueClient';
 
+export const revalidate = 300;
+
 export const metadata = {
   title: 'Shop All Imported Fashion — Browse Premium Clothing, Bags & Accessories | House of Avira',
   description: 'Browse our complete collection of imported fashion at House of Avira. Premium clothing, luxury bags, shoes, accessories & more. Filter by category, price & style. 5000+ orders delivered across India.',

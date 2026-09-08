@@ -1,37 +1,46 @@
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 
 // In-memory cache with TTL
 let productsCache = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 60 * 1000; // 60 seconds
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const maxItems = parseInt(searchParams.get('limit') || '1000', 10);
 
   const now = Date.now();
-  
+
   // Return cached data if fresh
   if (productsCache && (now - cacheTimestamp) < CACHE_TTL) {
     const sliced = productsCache.slice(0, maxItems);
     return Response.json(sliced, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
       },
     });
   }
 
   try {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(1000));
-    const querySnapshot = await getDocs(q);
-    const products = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      // Convert Firestore Timestamps to serializable values
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString?.() || doc.data().createdAt || null,
-      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString?.() || doc.data().updatedAt || null,
-    }));
+    if (!adminDb) {
+      throw new Error('Firebase Admin not initialized');
+    }
+
+    const snapshot = await adminDb
+      .collection('products')
+      .orderBy('createdAt', 'desc')
+      .limit(1000)
+      .get();
+
+    const products = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.()?.toISOString?.() || data.createdAt || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString?.() || data.updatedAt || null,
+      };
+    });
 
     // Update cache
     productsCache = products;
@@ -40,7 +49,7 @@ export async function GET(request) {
     const sliced = products.slice(0, maxItems);
     return Response.json(sliced, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
       },
     });
   } catch (error) {
@@ -49,7 +58,7 @@ export async function GET(request) {
     if (productsCache) {
       return Response.json(productsCache.slice(0, maxItems), {
         headers: {
-          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
         },
       });
     }
