@@ -28,6 +28,41 @@ export function proxy(request) {
   const response = NextResponse.next();
   const { pathname } = request.nextUrl;
 
+  const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
+
+  // List of common bot/scraper user agents
+  const BLOCKED_USER_AGENTS = [
+    'python-requests',
+    'scrapy',
+    'curl',
+    'wget',
+    'bot',
+    'crawler',
+    'spider',
+    'headlesschrome',
+    'puppeteer',
+    'selenium',
+  ];
+
+  // List of legitimate bots we WANT to allow (Google, Bing, etc. for SEO)
+  const ALLOWED_BOTS = [
+    'googlebot',
+    'bingbot',
+    'yandexbot',
+    'duckduckbot',
+    'slurp',
+  ];
+
+  // 0.5 Check if it's a known bad bot
+  const isBlockedBot = BLOCKED_USER_AGENTS.some(bot => userAgent.includes(bot));
+  const isAllowedBot = ALLOWED_BOTS.some(bot => userAgent.includes(bot));
+
+  if (isBlockedBot && !isAllowedBot) {
+    console.log(`Blocked bot: ${userAgent}`);
+    return new NextResponse('Access Denied: Bot traffic detected.', { status: 403 });
+  }
+
+
   // 0. Set default cookies (migrated from proxy.js)
   if (!request.cookies.get('NEXT_LOCALE')?.value) {
     response.cookies.set('NEXT_LOCALE', 'en', { maxAge: 60 * 60 * 24 * 30, path: '/' });
