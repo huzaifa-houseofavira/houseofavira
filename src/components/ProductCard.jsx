@@ -7,6 +7,7 @@ import { useQuickAddStore } from '@/store/quickAddStore';
 import { useRouter } from 'next/navigation';
 import { Heart, ShoppingBag, Layers } from 'lucide-react';
 import PriceDisplay from '@/components/PriceDisplay';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 export default function ProductCard({ product }) {
   const { id, slug, name, price, imageUrl, badge, swatches, sizes = [] } = product;
@@ -67,7 +68,7 @@ export default function ProductCard({ product }) {
             product.images.map((img, idx) => (
               <div key={idx} className="relative w-full h-full flex-shrink-0 snap-center">
                 <Image
-                  src={img}
+                  src={optimizeCloudinaryUrl(img, 600)}
                   alt={`${name} ${idx + 1}`}
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"
@@ -77,7 +78,7 @@ export default function ProductCard({ product }) {
             ))
           ) : (
             <Image
-              src={imageUrl || (product.images && product.images[0])}
+              src={optimizeCloudinaryUrl(imageUrl || (product.images && product.images[0]), 600)}
               alt={name}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
@@ -89,7 +90,7 @@ export default function ProductCard({ product }) {
         {/* Desktop Hover Effect (only applies if multiple images exist) */}
         {product.images && product.images.length > 1 && (
           <Image
-            src={product.images[1]}
+            src={optimizeCloudinaryUrl(product.images[1], 600)}
             alt={`${name} secondary`}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"

@@ -1,5 +1,7 @@
 'use client';
 
+import { useCoupons } from '@/hooks/useCoupons';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 import { useCartStore } from '@/store/cartStore';
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -278,7 +280,7 @@ export default function CartSlideOver() {
                         {/* Image */}
                         <div className="relative w-[90px] sm:w-[100px] h-[120px] sm:h-[135px] rounded-xl overflow-hidden bg-[#F5F5F7] flex-shrink-0 border border-gray-100/50 shadow-sm">
                           {item.image ? (
-                            <Image src={item.image} alt={item.title} fill className="object-cover" />
+                            <Image src={optimizeCloudinaryUrl(item.image, 200)} alt={item.title} fill className="object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-300"><ShoppingBag className="w-6 h-6" /></div>
                           )}
