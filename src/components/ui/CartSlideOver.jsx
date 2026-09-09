@@ -1,6 +1,5 @@
 'use client';
 
-import { useCoupons } from '@/hooks/useCoupons';
 import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 import { useCartStore } from '@/store/cartStore';
 import { useState, useEffect, useMemo } from 'react';
