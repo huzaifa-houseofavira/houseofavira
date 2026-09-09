@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-const STATUS_STEPS = ['Pending', 'Confirmed', 'Shipped', 'Delivered'];
+const STATUS_STEPS = ['Order Confirmed', 'International Shipping'];
 const STATUS_CONFIG = {
   Pending:   { color: '#B45309', bg: '#FEF3C7', icon: '⏳' },
   Placed:    { color: '#B45309', bg: '#FEF3C7', icon: '⏳' },
@@ -21,6 +21,7 @@ export default function TrackOrderClient() {
   const [error, setError] = useState('');
   const [order, setOrder] = useState(null);
   const [searched, setSearched] = useState(false);
+  const [cachedOrder, setCachedOrder] = useState(null);
 
   useEffect(() => {
     if (searchParams?.get('orderId') && searchParams?.get('contact')) {
@@ -31,6 +32,13 @@ export default function TrackOrderClient() {
   const handleTrack = async (e) => {
     if (e) e.preventDefault();
     setError('');
+
+    // Check if we already fetched THIS exact order to prevent spam
+    if (cachedOrder && cachedOrder.orderId.toLowerCase().includes(orderId.toLowerCase().replace(/[\s#]/g, '')) && !searched) {
+      setOrder(cachedOrder);
+      return;
+    }
+
     setOrder(null);
     setSearched(true);
     if (!orderId.trim() || !contact.trim()) {
@@ -55,17 +63,25 @@ export default function TrackOrderClient() {
         return;
       }
       setOrder(data.order);
+      setCachedOrder(data.order);
     } catch (err) {
       console.error('Track order error:', err);
       setError('Something went wrong. Please try again later.');
     } finally {
       setLoading(false);
+      setSearched(false);
     }
   };
 
-  const getStepIndex = (status) => {
-    const idx = STATUS_STEPS.indexOf(status);
-    return idx >= 0 ? idx : 0;
+  const getStepIndex = (orderData) => {
+    if (!orderData) return 0;
+    
+    // 0 = Order Confirmed, 1 = International Shipping
+    // Tick "International Shipping" only when weight is entered or beyond
+    if (orderData.weightStatus === 'ENTERED' || orderData.estimatedOrderWeight > 0) {
+      return 1;
+    }
+    return 0;
   };
 
   const formatDate = (ts) => {
@@ -168,11 +184,11 @@ export default function TrackOrderClient() {
               {displayStatus !== 'Cancelled' && (
                 <div className="trk-progress">
                   <div className="trk-progress-bar">
-                    <div className="trk-progress-fill" style={{ width: `${(getStepIndex(displayStatus) / (STATUS_STEPS.length - 1)) * 100}%` }} />
+                    <div className="trk-progress-fill" style={{ width: `${(getStepIndex(order) / (STATUS_STEPS.length - 1)) * 100}%` }} />
                   </div>
                   <div className="trk-steps">
                     {STATUS_STEPS.map((step, i) => {
-                      const active = i <= getStepIndex(displayStatus);
+                      const active = i <= getStepIndex(order);
                       return (
                         <div key={step} className={`trk-step ${active ? 'trk-step-active' : ''}`}>
                           <div className={`trk-step-dot ${active ? 'trk-dot-active' : ''}`}>
@@ -215,7 +231,7 @@ export default function TrackOrderClient() {
                     <div className="trk-detail-row">
                       <span className="trk-detail-key">Address</span>
                       <span className="trk-detail-val">
-                        {order.shippingAddress.addressLine1}
+                        {order.shippingAddress.addressLine1 || 'Pending Input'}
                       </span>
                     </div>
                     <div className="trk-detail-row">

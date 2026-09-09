@@ -70,13 +70,15 @@ export async function POST(request) {
         phone: data.customer_phone || '',
       },
       shippingAddress: {
-        addressLine1: data.shipping_address?.address || data.shipping_address?.line1 || '',
+        addressLine1: data.shipping_address?.addressLine1 || data.shipping_address?.address || data.shipping_address?.line1 || '',
         city: data.shipping_address?.city || '',
         state: data.shipping_address?.state || '',
         pincode: data.shipping_address?.zip || data.shipping_address?.postal_code || data.shipping_address?.pincode || '',
       },
       paymentMethod: data.payment_method || 'Online',
       shippingFee: data.shipping_cost || 0,
+      weightStatus: data.weight_status || 'PENDING',
+      estimatedOrderWeight: data.estimated_order_weight || 0,
       finalTotal: data.payable_amount || data.total_amount,
       items: data.items.map(item => ({
         name: item.name || item.title || 'Unknown Item',
