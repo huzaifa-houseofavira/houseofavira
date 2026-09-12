@@ -28,116 +28,54 @@ export function proxy(request) {
   const response = NextResponse.next();
   const { pathname } = request.nextUrl;
 
-  const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
-
-  // List of common bot/scraper user agents
-  const BLOCKED_USER_AGENTS = [
-    'python-requests',
-    'scrapy',
-    'curl',
-    'wget',
-    'bot',
-    'crawler',
-    'spider',
-    'headlesschrome',
-    'puppeteer',
-    'selenium',
-  ];
-
-  // List of legitimate bots we WANT to allow (Google, Bing, etc. for SEO)
-  const ALLOWED_BOTS = [
-    'googlebot',
-    'bingbot',
-    'yandexbot',
-    'duckduckbot',
-    'slurp',
-  ];
-
-  // 0.5 Check if it's a known bad bot
-  const isBlockedBot = BLOCKED_USER_AGENTS.some(bot => userAgent.includes(bot));
-  const isAllowedBot = ALLOWED_BOTS.some(bot => userAgent.includes(bot));
-
-  if (isBlockedBot && !isAllowedBot) {
-    console.log(`Blocked bot: ${userAgent}`);
-    return new NextResponse('Access Denied: Bot traffic detected.', { status: 403 });
-  }
-
-
-  // 0. Set default cookies (migrated from proxy.js)
-  if (!request.cookies.get('NEXT_LOCALE')?.value) {
-    response.cookies.set('NEXT_LOCALE', 'en', { maxAge: 60 * 60 * 24 * 30, path: '/' });
-  }
-
-  if (!request.cookies.get('USER_CURRENCY')?.value) {
-    response.cookies.set('USER_CURRENCY', 'INR', { maxAge: 60 * 60 * 24 * 30, path: '/' });
-  }
-
-  // 1. Rate Limiting for API routes
-  if (pathname.startsWith('/api/')) {
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
-    const config = getRateLimitConfig(pathname);
-    
-    const key = `${ip}-${pathname}`;
-    const now = Date.now();
-    
-    const record = rateLimit.get(key) || { count: 0, resetTime: now + config.windowMs };
-    
-    if (now > record.resetTime) {
-      record.count = 1;
-      record.resetTime = now + config.windowMs;
-    } else {
-      record.count++;
+  // Set default cookies for non-API routes (if matched by accident or if needed)
+  if (!pathname.startsWith('/api/')) {
+    if (!request.cookies.get('NEXT_LOCALE')?.value) {
+      response.cookies.set('NEXT_LOCALE', 'en', { maxAge: 60 * 60 * 24 * 30, path: '/' });
     }
-    
-    rateLimit.set(key, record);
-    
-    if (record.count > config.max) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Too many requests, please try again later.' }),
-        { 
-          status: 429, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Retry-After': Math.ceil((record.resetTime - now) / 1000).toString()
-          } 
-        }
-      );
+    if (!request.cookies.get('USER_CURRENCY')?.value) {
+      response.cookies.set('USER_CURRENCY', 'INR', { maxAge: 60 * 60 * 24 * 30, path: '/' });
     }
+    return response;
   }
 
-  // 2. Security Headers
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // Rate Limiting for API routes
+  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+  const config = getRateLimitConfig(pathname);
   
-  // Note: unsafe-inline is required for some Next.js/React functionality and Razorpay SDK
-  const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://cdn.razorpay.com https://apis.google.com https://accounts.google.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' data: blob: https://res.cloudinary.com https://*.razorpay.com https://*.googleusercontent.com;
-    connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://checkout.razorpay.com https://lux.razorpay.com https://api.razorpay.com https://api.postalpincode.in https://identitytoolkit.googleapis.com https://securetoken.googleapis.com;
-    frame-src https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com https://*.firebaseapp.com;
-  `.replace(/\s{2,}/g, ' ').trim();
+  const key = `${ip}-${pathname}`;
+  const now = Date.now();
   
-  response.headers.set('Content-Security-Policy', cspHeader);
+  const record = rateLimit.get(key) || { count: 0, resetTime: now + config.windowMs };
+  
+  if (now > record.resetTime) {
+    record.count = 1;
+    record.resetTime = now + config.windowMs;
+  } else {
+    record.count++;
+  }
+  
+  rateLimit.set(key, record);
+  
+  if (record.count > config.max) {
+    return new NextResponse(
+      JSON.stringify({ error: 'Too many requests, please try again later.' }),
+      { 
+        status: 429, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Retry-After': Math.ceil((record.resetTime - now) / 1000).toString()
+        } 
+      }
+    );
+  }
 
   return response;
 }
 
-// Apply middleware to all routes except static assets and image optimization
+// Apply middleware ONLY to API routes to prevent Vercel Invocation spikes
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (e.g. LOGO.png)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/api/:path*',
   ],
 };
