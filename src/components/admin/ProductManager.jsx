@@ -79,6 +79,45 @@ async function getCroppedBlob(imageSrc, pixelCrop) {
 }
 
 /* ─────────────────────────────────────────────
+   Utility: Client-side Image Compressor
+───────────────────────────────────────────── */
+async function compressImage(file, maxMB = 3) {
+  if (file.size <= maxMB * 1024 * 1024) return file;
+
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = reject;
+    img.src = url;
+  });
+
+  let { width, height } = image;
+  const maxDim = 1600;
+  if (width > maxDim || height > maxDim) {
+    if (width > height) {
+      height = Math.round((height * maxDim) / width);
+      width = maxDim;
+    } else {
+      width = Math.round((width * maxDim) / height);
+      height = maxDim;
+    }
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(image, 0, 0, width, height);
+
+  const blob = await new Promise((resolve) => {
+    canvas.toBlob((b) => resolve(b), 'image/webp', 0.85);
+  });
+
+  return new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+}
+
+/* ─────────────────────────────────────────────
    Crop Modal Component
 ───────────────────────────────────────────── */
 function CropModal({ imageSrc, fileName, onApply, onCancel }) {
@@ -391,20 +430,6 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
   const handleFilesAdded = (fileList) => {
     const validFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
     if (validFiles.length === 0) return;
-
-    // Check for Vercel's 4.5MB serverless payload limit
-    const oversizedFiles = validFiles.filter(f => f.size > 4 * 1024 * 1024);
-    if (oversizedFiles.length > 0) {
-      setError(`One or more images are too large (over 4MB). Please compress them before uploading to avoid server limits, or use the "Manual Crop" option which compresses them automatically.`);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Only proceed with the ones that are under 4MB
-      const safeFiles = validFiles.filter(f => f.size <= 4 * 1024 * 1024);
-      if (safeFiles.length === 0) return;
-      setPendingFiles(safeFiles);
-      setCropChoiceOpen(true);
-      return;
-    }
-
     setPendingFiles(validFiles);
     setCropChoiceOpen(true);
   };
@@ -419,7 +444,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
     setCropChoiceOpen(true);
   };
 
-  const handleCropChoice = (choice) => {
+  const handleCropChoice = async (choice) => {
     const [current, ...rest] = pendingFiles;
     setCropChoiceOpen(false);
 
@@ -427,13 +452,14 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
       const blobUrl = URL.createObjectURL(current);
       setManualCropTarget({ file: current, blobUrl, remainingFiles: rest });
     } else {
-      // auto crop — add directly
-      const blobUrl = URL.createObjectURL(current);
+      // auto crop — compress directly to avoid Vercel 4.5MB limit
+      const compressedFile = await compressImage(current);
+      const blobUrl = URL.createObjectURL(compressedFile);
       const newItem = {
         id: `new-${Date.now()}-${Math.random()}`,
         type: 'new',
         src: blobUrl,
-        file: current,
+        file: compressedFile,
         isManualCrop: false,
         uploading: false,
         uploaded: false,
@@ -805,14 +831,10 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
                           ) : (
                             <ImageIcon className="w-6 h-6 text-[#86868b]" />
                           )}
-                          <input type="file" accept="image/*" className="hidden" onChange={e => { 
+                          <input type="file" accept="image/*" className="hidden" onChange={async e => { 
                             if (e.target.files?.[0]) {
-                              if (e.target.files[0].size > 4 * 1024 * 1024) {
-                                setError("Variant image is too large (over 4MB). Please compress it first.");
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                                return;
-                              }
-                              updateColorVariant(variant.id, 'imageFile', e.target.files[0]); 
+                              const compressedFile = await compressImage(e.target.files[0]);
+                              updateColorVariant(variant.id, 'imageFile', compressedFile); 
                             }
                           }} />
                         </label>
@@ -958,15 +980,11 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
                   accept="image/*" 
                   className="hidden" 
                   ref={sizeChartInputRef} 
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files[0];
                     if (file && file.type.startsWith('image/')) {
-                      if (file.size > 4 * 1024 * 1024) {
-                        setError("Size chart image is too large (over 4MB). Please compress it first.");
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        return;
-                      }
-                      setSizeChartFile(file);
+                      const compressedFile = await compressImage(file);
+                      setSizeChartFile(compressedFile);
                     }
                   }} 
                 />
