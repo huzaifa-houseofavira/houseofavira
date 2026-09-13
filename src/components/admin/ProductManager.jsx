@@ -391,6 +391,20 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
   const handleFilesAdded = (fileList) => {
     const validFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
     if (validFiles.length === 0) return;
+
+    // Check for Vercel's 4.5MB serverless payload limit
+    const oversizedFiles = validFiles.filter(f => f.size > 4 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      setError(`One or more images are too large (over 4MB). Please compress them before uploading to avoid server limits, or use the "Manual Crop" option which compresses them automatically.`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Only proceed with the ones that are under 4MB
+      const safeFiles = validFiles.filter(f => f.size <= 4 * 1024 * 1024);
+      if (safeFiles.length === 0) return;
+      setPendingFiles(safeFiles);
+      setCropChoiceOpen(true);
+      return;
+    }
+
     setPendingFiles(validFiles);
     setCropChoiceOpen(true);
   };
@@ -791,7 +805,16 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
                           ) : (
                             <ImageIcon className="w-6 h-6 text-[#86868b]" />
                           )}
-                          <input type="file" accept="image/*" className="hidden" onChange={e => { if (e.target.files?.[0]) updateColorVariant(variant.id, 'imageFile', e.target.files[0]); }} />
+                          <input type="file" accept="image/*" className="hidden" onChange={e => { 
+                            if (e.target.files?.[0]) {
+                              if (e.target.files[0].size > 4 * 1024 * 1024) {
+                                setError("Variant image is too large (over 4MB). Please compress it first.");
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                return;
+                              }
+                              updateColorVariant(variant.id, 'imageFile', e.target.files[0]); 
+                            }
+                          }} />
                         </label>
                         {variant.imageFile && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-[#0071e3] px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">NEW</span>}
                       </div>
@@ -938,6 +961,11 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file && file.type.startsWith('image/')) {
+                      if (file.size > 4 * 1024 * 1024) {
+                        setError("Size chart image is too large (over 4MB). Please compress it first.");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                      }
                       setSizeChartFile(file);
                     }
                   }} 
