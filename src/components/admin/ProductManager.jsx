@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
-import { uploadSingleImage, deleteImageFromCloudinary } from '@/app/actions/uploadActions';
+import { deleteImageFromCloudinary } from '@/app/actions/uploadActions';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { generateUniqueSlug } from '@/lib/slugify';
@@ -115,6 +115,22 @@ async function compressImage(file, maxMB = 3) {
   });
 
   return new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+}
+
+async function uploadSingleImageAPI(formData) {
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) {
+      throw new Error(`Upload failed with status ${res.status}`);
+    }
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -547,7 +563,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
           const formPayload = new FormData();
           formPayload.append('image', item.file);
           formPayload.append('manualCrop', String(item.isManualCrop));
-          const result = await uploadSingleImage(formPayload);
+          const result = await uploadSingleImageAPI(formPayload);
 
           if (!result.success) throw new Error(`Failed to upload image: ${result.error}`);
           updatedItems[i] = { ...item, uploaded: true, uploading: false, uploadedUrl: result.url };
@@ -567,7 +583,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
           const vForm = new FormData();
           vForm.append('image', variant.imageFile);
           vForm.append('manualCrop', 'false');
-          const vRes = await uploadSingleImage(vForm);
+          const vRes = await uploadSingleImageAPI(vForm);
           if (vRes.success) vUrl = vRes.url;
         }
         swatchesArray.push({
@@ -594,7 +610,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
         const scForm = new FormData();
         scForm.append('image', sizeChartFile);
         scForm.append('manualCrop', 'true'); // bypass 3:4 auto-crop
-        const scRes = await uploadSingleImage(scForm);
+        const scRes = await uploadSingleImageAPI(scForm);
         if (scRes.success) finalSizeChartUrl = scRes.url;
       }
 
