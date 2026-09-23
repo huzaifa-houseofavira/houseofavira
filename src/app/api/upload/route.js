@@ -7,6 +7,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+export const maxDuration = 60; // Allow more time for Cloudinary uploads
+
 export async function POST(req) {
   try {
     const formData = await req.formData();
@@ -29,6 +31,8 @@ export async function POST(req) {
       uploadOptions.aspect_ratio = '3:4';
       uploadOptions.crop = 'fill';
       uploadOptions.gravity = 'auto';
+      uploadOptions.width = 900;
+      uploadOptions.height = 1200;
     } else {
       uploadOptions.crop = 'limit';
       uploadOptions.width = 1600;
@@ -49,6 +53,7 @@ export async function POST(req) {
     return NextResponse.json({ success: true, url });
   } catch (error) {
     console.error("Cloudinary upload API error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const errorMsg = error.message || error.error?.message || JSON.stringify(error) || String(error);
+    return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
   }
 }

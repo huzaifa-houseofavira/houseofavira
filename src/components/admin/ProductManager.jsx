@@ -81,7 +81,7 @@ async function getCroppedBlob(imageSrc, pixelCrop) {
 /* ─────────────────────────────────────────────
    Utility: Client-side Image Compressor
 ───────────────────────────────────────────── */
-async function compressImage(file, maxMB = 3) {
+async function compressImage(file, maxMB = 0.5) {
   if (file.size <= maxMB * 1024 * 1024) return file;
 
   const image = await new Promise((resolve, reject) => {
@@ -123,10 +123,10 @@ async function uploadSingleImageAPI(formData) {
       method: 'POST',
       body: formData
     });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(`Upload failed with status ${res.status}`);
+      throw new Error(data.error || `Upload failed with status ${res.status}`);
     }
-    const data = await res.json();
     return data;
   } catch (err) {
     return { success: false, error: err.message };
