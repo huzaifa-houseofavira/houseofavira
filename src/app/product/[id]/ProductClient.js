@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useAuthStore } from '@/store/authStore';
@@ -238,7 +239,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
               onTouchEnd={onTouchEndEvent}
             >
               <img 
-                src={images[currentImageIndex]} 
+                src={optimizeCloudinaryUrl(images[currentImageIndex], 1200)} 
                 alt={`${product.name} ${currentImageIndex + 1}`} 
                 className="w-full h-full object-cover lg:object-contain bg-neutral-50 transition-opacity duration-300" 
               />
@@ -314,7 +315,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                     onClick={() => setCurrentImageIndex(idx)}
                     className={`relative w-20 aspect-[4/5] shrink-0 rounded-xl overflow-hidden transition-all duration-300 ${currentImageIndex === idx ? 'ring-2 ring-black ring-offset-2 opacity-100 scale-105' : 'ring-1 ring-neutral-200 opacity-60 hover:opacity-100 hover:scale-105'}`}
                   >
-                    <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(img, 300)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -722,7 +723,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
               <div className="p-4 sm:p-6 overflow-y-auto flex-1 flex items-center justify-center bg-[#F8F9FA] rounded-b-2xl">
                 {product.sizeChartUrl ? (
                   <img 
-                    src={product.sizeChartUrl} 
+                    src={optimizeCloudinaryUrl(product.sizeChartUrl, 1000)} 
                     alt={`${product.name} Size Guide`} 
                     style={{ 
                       width: '100%', 
