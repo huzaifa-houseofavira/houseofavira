@@ -5,7 +5,7 @@ const nextConfig = {
   serverExternalPackages: ['firebase-admin', 'nodemailer', 'razorpay', 'cloudinary'],
   experimental: {
     serverActions: {
-      bodySizeLimit: '20mb',
+      bodySizeLimit: '15mb',
     },
     optimizePackageImports: [
       'lucide-react',

@@ -315,7 +315,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                     onClick={() => setCurrentImageIndex(idx)}
                     className={`relative w-20 aspect-[4/5] shrink-0 rounded-xl overflow-hidden transition-all duration-300 ${currentImageIndex === idx ? 'ring-2 ring-black ring-offset-2 opacity-100 scale-105' : 'ring-1 ring-neutral-200 opacity-60 hover:opacity-100 hover:scale-105'}`}
                   >
-                    <img src={optimizeCloudinaryUrl(img, 300)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(img, 300)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
                   </button>
                 ))}
               </div>
@@ -498,7 +498,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
 
               {/* Shipping Warning Box */}
               <div className="mt-6 border border-neutral-200 rounded-xl overflow-hidden relative">
-                <img src="/shipping-bg-product-page.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-15" />
+                <img src="/shipping-bg-product-page.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-15" loading="lazy" />
                 <div className="relative z-10 p-6 flex flex-col items-center justify-center text-center gap-5">
                   <p className="text-xs tracking-widest leading-loose uppercase font-bold text-neutral-600 max-w-sm" style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
                     * Please place an order only if you are comfortable with the international shipping process and charges.
@@ -687,7 +687,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
 
             {/* Shipping Warning Box */}
             <div className="border border-neutral-200 rounded-[2rem] overflow-hidden relative">
-              <img src="/shipping-bg-product-page.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-15" />
+              <img src="/shipping-bg-product-page.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-15" loading="lazy" />
               <div className="relative z-10 p-8 flex flex-col items-center justify-center text-center gap-5">
                 <p className="text-sm tracking-widest leading-loose uppercase font-bold text-neutral-600 max-w-md" style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
                   * Please place an order only if you are comfortable with the international shipping process and charges.
