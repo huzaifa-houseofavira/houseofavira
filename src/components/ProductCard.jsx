@@ -60,7 +60,7 @@ export default function ProductCard({ product }) {
       <div className={`relative aspect-[3/4] w-full overflow-hidden rounded-md bg-[#E5E0DA] ${product.inStock === false ? 'opacity-70' : ''}`}>
         
         {/* Mobile Swipe Container (also serves as the main link) */}
-        <Link 
+        <Link prefetch={false} 
           href={`/product/${product.slug || product.id}`} 
           className="absolute inset-0 z-10 flex overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >

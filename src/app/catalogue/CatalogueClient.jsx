@@ -309,7 +309,7 @@ const sortSizes = (a, b) => {
         {searchParamQuery && searchResults?.length === 0 && (
           <p className="text-sm mt-4 text-neutral-500">
             {getDidYouMean(products, searchParamQuery) ? (
-              <span>Did you mean <Link href={`/catalogue?search=${encodeURIComponent(getDidYouMean(products, searchParamQuery))}`} className="text-black font-bold underline">{getDidYouMean(products, searchParamQuery)}</Link>?</span>
+              <span>Did you mean <Link prefetch={false} href={`/catalogue?search=${encodeURIComponent(getDidYouMean(products, searchParamQuery))}`} className="text-black font-bold underline">{getDidYouMean(products, searchParamQuery)}</Link>?</span>
             ) : (
               'No results found. Try adjusting your search.'
             )}
@@ -636,7 +636,7 @@ const sortSizes = (a, b) => {
           {displayProducts.map((product) => {
             const isWishlisted = wishlist.some(item => item.id === product.id);
             return (
-              <Link 
+              <Link prefetch={false} 
                 key={product.id} 
                 href={`/product/${product.slug || product.id}`}
                 className="avira-masonry-item group"
@@ -721,7 +721,7 @@ const sortSizes = (a, b) => {
               Log in or create an account to save your favourite looks and view them at any time.
             </p>
             
-            <Link 
+            <Link prefetch={false} 
               href="/auth/login"
               className="w-full bg-black text-white text-xs font-bold uppercase tracking-[0.15em] py-4 mb-4 hover:bg-[#8A001A] transition-colors"
             >
