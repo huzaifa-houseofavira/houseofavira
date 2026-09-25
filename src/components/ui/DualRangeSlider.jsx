@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 
 const DualRangeSlider = ({ min = 0, max = 10000, step = 100, value, onChange }) => {

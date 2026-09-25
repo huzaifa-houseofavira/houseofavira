@@ -1,5 +1,5 @@
-import { optimizeCloudinaryUrl } from "@/lib/image-optimizer";
 'use client';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
