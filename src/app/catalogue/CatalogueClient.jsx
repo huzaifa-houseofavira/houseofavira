@@ -1,3 +1,4 @@
+import { optimizeCloudinaryUrl } from "@/lib/image-optimizer";
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -642,7 +643,7 @@ const sortSizes = (a, b) => {
               >
                 <div className="avira-item-img-wrapper">
                   <img 
-                    src={product.imageUrl} 
+                    src={optimizeCloudinaryUrl(product.imageUrl, 600)} 
                     alt={product.name} 
                     className="avira-item-img"
                     loading="lazy"
