@@ -1,10 +1,10 @@
-import { Suspense } from 'react';
+﻿import { Suspense } from 'react';
 import CatalogueClient from './CatalogueClient';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export const metadata = {
-  title: 'Shop All Imported Fashion — Browse Premium Clothing, Bags & Accessories | House of Avira',
+  title: 'Shop All Imported Fashion â€” Browse Premium Clothing, Bags & Accessories | House of Avira',
   description: 'Browse our complete collection of imported fashion at House of Avira. Premium clothing, luxury bags, shoes, accessories & more. Filter by category, price & style. 5000+ orders delivered across India.',
   keywords: [
     'shop imported fashion India',
@@ -28,7 +28,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Shop All Imported Fashion | House of Avira',
-    description: 'Browse premium imported fashion — clothing, bags, shoes & accessories at House of Avira.',
+    description: 'Browse premium imported fashion â€” clothing, bags, shoes & accessories at House of Avira.',
   },
 };
 
@@ -37,7 +37,7 @@ export default function CataloguePage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "Imported Fashion Collection",
-    "description": "Browse the complete collection of premium imported fashion at House of Avira — clothing, bags, shoes, accessories & more.",
+    "description": "Browse the complete collection of premium imported fashion at House of Avira â€” clothing, bags, shoes, accessories & more.",
     "url": "https://houseofavira.shop/catalogue",
     "isPartOf": {
       "@id": "https://houseofavira.shop/#website"

@@ -1,7 +1,7 @@
-import { adminDb } from '@/lib/firebase-admin';
+﻿import { adminDb } from '@/lib/firebase-admin';
 import ProductClient from './ProductClient';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 // Helper function to fetch product by slug or id using Admin SDK
 async function getProduct(idOrSlug) {
@@ -74,7 +74,7 @@ export async function generateMetadata({ params: paramsPromise }) {
   const productSlug = product.slug || product.id;
   const canonicalUrl = `https://houseofavira.shop/product/${productSlug}`;
   
-  const seoTitle = `${product.name} — Buy Imported ${product.category || 'Fashion'} India | House of Avira`;
+  const seoTitle = `${product.name} â€” Buy Imported ${product.category || 'Fashion'} India | House of Avira`;
   const seoDesc = product.description 
     ? `${product.description.substring(0, 140)}. Shop at House of Avira.`
     : `Buy ${product.name} at House of Avira. Premium imported ${(product.category || 'fashion').toLowerCase()} delivered to India. Internationally sourced, authentic quality.`;
@@ -95,7 +95,7 @@ export async function generateMetadata({ params: paramsPromise }) {
           url: imageUrl,
           width: 800,
           height: 800,
-          alt: `${product.name} — Imported Fashion at House of Avira`,
+          alt: `${product.name} â€” Imported Fashion at House of Avira`,
         },
       ],
       type: 'website',
@@ -127,7 +127,7 @@ export default async function ProductPage({ params }) {
     '@type': 'Product',
     name: product.name,
     image: product.images || [],
-    description: product.description || `Buy ${product.name} from House of Avira — premium imported fashion delivered to India.`,
+    description: product.description || `Buy ${product.name} from House of Avira â€” premium imported fashion delivered to India.`,
     sku: product.sku || `HOA-${product.id}`,
     brand: {
       '@type': 'Brand',

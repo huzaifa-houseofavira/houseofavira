@@ -1,8 +1,8 @@
-import HomeClient from './HomeClient';
+﻿import HomeClient from './HomeClient';
 
 export const metadata = {
-  title: 'House of Avira — Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing',
-  description: 'Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✈️ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.',
+  title: 'House of Avira â€” Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing',
+  description: 'Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. âœˆï¸ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.',
   keywords: [
     'imported clothing India',
     'imported fashion India',
@@ -31,7 +31,7 @@ export const metadata = {
     canonical: 'https://houseofavira.shop',
   },
   openGraph: {
-    title: 'House of Avira — Premium Imported Fashion Store India',
+    title: 'House of Avira â€” Premium Imported Fashion Store India',
     description: 'Internationally sourced fashion delivered to your doorstep. Shop Pinterest finds, Korean fashion, old money aesthetics & luxury clothing at House of Avira.',
     url: 'https://houseofavira.shop',
     siteName: 'House of Avira',
@@ -40,7 +40,7 @@ export const metadata = {
         url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'House of Avira — Premium Imported Fashion Store India',
+        alt: 'House of Avira â€” Premium Imported Fashion Store India',
       },
     ],
     locale: 'en_IN',
@@ -48,13 +48,13 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'House of Avira — Premium Imported Fashion Store India',
+    title: 'House of Avira â€” Premium Imported Fashion Store India',
     description: 'Shop internationally sourced fashion. Pinterest finds, Korean fashion, luxury clothing & 5000+ orders delivered across India.',
     images: ['/opengraph-image.png'],
   },
 };
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export default function HomePage() {
   // FAQ Schema for homepage
@@ -67,7 +67,7 @@ export default function HomePage() {
         "name": "What is House of Avira?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "House of Avira is India's premier premium import-based fashion store. We curate internationally sourced clothing, bags, shoes, and accessories from global fashion trends — including Pinterest finds, Korean fashion, Japanese streetwear, and luxury aesthetics — and deliver them directly to your doorstep across India."
+          "text": "House of Avira is India's premier premium import-based fashion store. We curate internationally sourced clothing, bags, shoes, and accessories from global fashion trends â€” including Pinterest finds, Korean fashion, Japanese streetwear, and luxury aesthetics â€” and deliver them directly to your doorstep across India."
         }
       },
       {
@@ -117,7 +117,7 @@ export default function HomePage() {
   const webPageSchema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "House of Avira — Premium Imported Fashion Store India",
+    "name": "House of Avira â€” Premium Imported Fashion Store India",
     "description": "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India.",
     "url": "https://houseofavira.shop",
     "isPartOf": {
@@ -155,8 +155,8 @@ export default function HomePage() {
       />
       {/* SEO-critical content visible to crawlers even if JS doesn't execute */}
       <div className="sr-only" aria-hidden="false">
-        <h1>House of Avira — Premium Imported Fashion Store India</h1>
-        <p>India&apos;s most trusted destination for internationally sourced fashion. We curate the trendiest Pinterest finds, Korean fashion, Japanese streetwear, luxury accessories, and designer-inspired pieces — and deliver them directly to your doorstep across India. With 5000+ orders delivered and 4+ years of trust, House of Avira is where fashion-forward Indians shop imported clothing, bags, shoes, and accessories.</p>
+        <h1>House of Avira â€” Premium Imported Fashion Store India</h1>
+        <p>India&apos;s most trusted destination for internationally sourced fashion. We curate the trendiest Pinterest finds, Korean fashion, Japanese streetwear, luxury accessories, and designer-inspired pieces â€” and deliver them directly to your doorstep across India. With 5000+ orders delivered and 4+ years of trust, House of Avira is where fashion-forward Indians shop imported clothing, bags, shoes, and accessories.</p>
         <h2>Shop by Category</h2>
         <nav aria-label="Shop categories">
           <ul>
@@ -171,14 +171,14 @@ export default function HomePage() {
           </ul>
         </nav>
         <h2>Shop by Style</h2>
-        <p>Discover old money fashion, quiet luxury clothing, Korean fashion, Y2K aesthetics, Japanese streetwear, Pinterest inspired outfits, coquette fashion, dark academia, coastal grandmother style, and more trending aesthetics — all imported and available in India.</p>
+        <p>Discover old money fashion, quiet luxury clothing, Korean fashion, Y2K aesthetics, Japanese streetwear, Pinterest inspired outfits, coquette fashion, dark academia, coastal grandmother style, and more trending aesthetics â€” all imported and available in India.</p>
         <h2>Why Shop at House of Avira?</h2>
         <ul>
           <li>5000+ orders delivered across India</li>
           <li>4+ years trusted by fashion lovers</li>
           <li>Imported directly from international suppliers</li>
           <li>Pinterest finds you can actually buy in India</li>
-          <li>Secure payments — UPI, Cards, COD accepted</li>
+          <li>Secure payments â€” UPI, Cards, COD accepted</li>
           <li>Full order tracking on every purchase</li>
         </ul>
       </div>
