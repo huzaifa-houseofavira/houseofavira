@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Playfair_Display, Cormorant_Garamond, DM_Sans, Montserrat } from "next/font/google";
+﻿import { Geist, Geist_Mono, Playfair_Display, Cormorant_Garamond, DM_Sans, Montserrat } from "next/font/google";
 import AuthProvider from "@/components/AuthProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -43,8 +43,8 @@ const dmSans = DM_Sans({
 
 export const metadata = {
   metadataBase: new URL("https://houseofavira.shop"),
-  title: "House of Avira — Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing",
-  description: "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✈️ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.",
+  title: "House of Avira – Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing",
+  description: "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✨ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.",
   keywords: [
     "House of Avira",
     "Avira Shopping",
@@ -85,8 +85,8 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "House of Avira — Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing",
-    description: "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✈️ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.",
+    title: "House of Avira – Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing",
+    description: "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✨ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.",
     url: "https://houseofavira.shop",
     siteName: "House of Avira",
     images: [
@@ -102,8 +102,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "House of Avira — Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing",
-    description: "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✈️ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.",
+    title: "House of Avira – Premium Imported Fashion Store India | Shop Pinterest Finds & Luxury Clothing",
+    description: "Shop premium imported fashion at House of Avira. Internationally sourced clothing, bags, shoes & accessories delivered to India. ✨ Pinterest finds, Korean fashion, old money aesthetics, luxury streetwear & 5000+ orders delivered.",
     images: ["/opengraph-image.png"],
   },
   robots: {
