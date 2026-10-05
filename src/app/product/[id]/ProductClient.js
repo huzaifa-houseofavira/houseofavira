@@ -22,6 +22,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedColor, setSelectedColor] = useState('');
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -38,7 +39,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
   const { openQuickAdd } = useQuickAddStore();
   const { addRecentlyViewed } = useRecentlyViewedStore();
 
-  const hasOptions = (product?.swatches && product.swatches.length > 0) || (product?.sizes && product.sizes.length > 0);
+  const hasOptions = (product?.swatches && product.swatches.length > 0) || (product?.sizes && product.sizes.length > 0) || (product?.variants && product.variants.length > 0);
 
   const handleAddToCart = async () => {
     if (!user) {
@@ -47,7 +48,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
     }
     
     if (hasOptions) {
-      openQuickAdd(product, selectedColor, selectedSize);
+      openQuickAdd(product, selectedColor, selectedSize, selectedVariant);
       return;
     }
     
@@ -72,7 +73,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
     }
     
     if (hasOptions) {
-      openQuickAdd(product, selectedColor, selectedSize);
+      openQuickAdd(product, selectedColor, selectedSize, selectedVariant);
       return;
     }
     
@@ -109,7 +110,8 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
         if (productData) {
           setProduct(productData);
           addRecentlyViewed(productData);
-          if (productData.sizes && productData.sizes.length > 0) setSelectedSize(productData.sizes[0]);
+          if (productData.variants && productData.variants.length > 0) setSelectedVariant(productData.variants[0]);
+          else if (productData.sizes && productData.sizes.length > 0) setSelectedSize(productData.sizes[0]);
           if (productData.swatches && productData.swatches.length > 0) setSelectedColor(productData.swatches[0].color);
 
           // Fetch Related Products from cached API
@@ -347,7 +349,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
               </div>
 
               <h1 className="text-2xl md:text-3xl font-medium text-black tracking-wide uppercase mb-3 leading-tight">{product.name}</h1>
-              <p className="text-lg text-[#8A001A] mb-10">₹{product.price.toFixed(2)}</p>
+              <p className="text-lg text-[#8A001A] mb-10">₹{(selectedVariant ? selectedVariant.price : product.price).toFixed(2)}</p>
 
               {/* Colors */}
               {product.swatches && product.swatches.length > 0 && (
@@ -368,7 +370,44 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                 </div>
               )}
 
-              {/* Sizes */}
+              
+
+                {/* Variants */}
+                {product.variants && product.variants.length > 0 && (
+                  <div className="mb-8">
+                    <div className="flex justify-between items-end mb-4">
+                      <p className="text-sm font-bold text-black uppercase tracking-widest">Select Option</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {product.variants.map((v) => {
+                        const isSelected = selectedVariant?.id === v.id;
+                        const outOfStock = v.stock <= 0;
+                        return (
+                          <button
+                            key={v.id}
+                            disabled={outOfStock}
+                            onClick={() => setSelectedVariant(v)}
+                            className={`w-full flex items-center justify-between p-4 rounded-xl border-[1.5px] transition-all ${
+                              outOfStock ? 'opacity-40 cursor-not-allowed bg-neutral-50 border-neutral-200' :
+                              isSelected 
+                                ? 'bg-transparent border-black text-black' 
+                                : 'bg-transparent border-neutral-200 text-black hover:border-black/40'
+                            }`}
+                          >
+                            <span className="font-medium text-[14px] uppercase tracking-widest truncate text-left flex-1">
+                              {v.name} {outOfStock && '- Out of Stock'}
+                            </span>
+                            <span className="font-bold text-[14px] flex-shrink-0 ml-4">
+                              ₹{v.price.toFixed(2)}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sizes */}
               {product.sizes && product.sizes.length > 0 && (
                 <div className="mb-10">
                   <div className="flex justify-between items-center mb-4">
@@ -399,7 +438,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3 mb-10">
-                {product.inStock !== false ? (
+                {(selectedVariant ? selectedVariant.stock > 0 : product.inStock !== false) ? (
                   <>
                     <button onClick={handleBuyNow} className="w-full bg-black text-white uppercase tracking-widest font-bold text-xs py-4 rounded-xl hover:bg-neutral-800 transition-all flex items-center justify-center min-h-[56px] shadow-lg hover:shadow-xl hover:-translate-y-0.5" style={{ fontFamily: '"Mona Sans", sans-serif' }}>
                       BUY NOW

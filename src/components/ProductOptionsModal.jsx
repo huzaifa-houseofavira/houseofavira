@@ -9,11 +9,12 @@ import PriceDisplay from '@/components/PriceDisplay';
 
 export default function ProductOptionsModal() {
   const router = useRouter();
-  const { isOpen, product, closeQuickAdd, preselectedColor, preselectedSize } = useQuickAddStore();
+  const { isOpen, product, closeQuickAdd, preselectedColor, preselectedSize, preselectedVariant } = useQuickAddStore();
   const { addToCart } = useCartStore();
 
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
@@ -34,7 +35,7 @@ export default function ProductOptionsModal() {
       setSelectedSize(preselectedSize || null);
       setQuantity(1);
     }
-  }, [isOpen, product, preselectedColor, preselectedSize]);
+  }, [isOpen, product, preselectedColor, preselectedSize, preselectedVariant]);
 
   if (!isOpen || !product) return null;
 
@@ -234,6 +235,50 @@ export default function ProductOptionsModal() {
                         style={{ borderColor: isSelected ? brandRed : '', color: isSelected ? brandRed : '' }}
                       >
                         {size}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            
+
+            {hasSizes && hasVariants && <div className="w-full h-[1px] bg-neutral-100 mb-6" />}
+
+            {/* 3. Select Variant */}
+            {hasVariants && (
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[14px] font-bold text-[#111111]">Option:</h3>
+                    <span className="text-[14px] text-neutral-500">{selectedVariant?.name || 'Select an option'}</span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                  {product.variants.map((v) => {
+                    const isSelected = selectedVariant?.id === v.id;
+                    const outOfStock = v.stock <= 0;
+                    return (
+                      <button
+                        key={v.id}
+                        disabled={outOfStock}
+                        onClick={() => setSelectedVariant(v)}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl border-[1.5px] transition-all ${
+                          outOfStock ? 'opacity-40 cursor-not-allowed bg-neutral-50 border-neutral-200' :
+                          isSelected 
+                            ? 'bg-transparent border-[#111111] text-[#111111]' 
+                            : 'bg-transparent border-neutral-200 text-[#111111] hover:border-black/40'
+                        }`}
+                        style={{ borderColor: isSelected ? brandRed : '' }}
+                      >
+                        <span className="font-medium text-[14px] truncate text-left flex-1" style={{ color: isSelected ? brandRed : '' }}>
+                          {v.name} {outOfStock && '- Out of Stock'}
+                        </span>
+                        <span className="font-bold text-[14px] flex-shrink-0" style={{ color: isSelected ? brandRed : '' }}>
+                          ₹{v.price.toFixed(2)}
+                        </span>
                       </button>
                     );
                   })}

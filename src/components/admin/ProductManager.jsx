@@ -310,6 +310,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
   const [sizes, setSizes] = useState([]);
   const [sizeInput, setSizeInput] = useState('');
   const [colors, setColors] = useState([]);
+  const [variants, setVariants] = useState([]);
   const [inStock, setInStock] = useState(true);
   const [bestSeller, setBestSeller] = useState(false);
 
@@ -353,6 +354,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
       const initialAesthetic = initialProduct.aesthetic;
       setAesthetic(Array.isArray(initialAesthetic) ? initialAesthetic : (initialAesthetic ? [initialAesthetic] : []));
       setSizes(initialProduct.sizes || []);
+      setVariants(initialProduct.variants || []);
       setColors(initialProduct.swatches?.map((s, idx) => ({
         id: Date.now() + idx,
         colorName: s.colorName || s.color,
@@ -396,6 +398,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
         const initialAesthetic = draft.aesthetic;
         setAesthetic(Array.isArray(initialAesthetic) ? initialAesthetic : (initialAesthetic ? [initialAesthetic] : []));
         setSizes(draft.sizes || []);
+        setVariants(draft.variants || []);
         setInStock(draft.inStock !== false);
         setBestSeller(draft.bestSeller || false);
       }
@@ -407,14 +410,14 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
     if (initialProduct) return;
     const timer = setTimeout(() => {
       try {
-        const draft = { name, price, description, sections, badge, categorySelections, aesthetic, sizes, inStock, bestSeller };
+        const draft = { name, price, description, sections, badge, categorySelections, aesthetic, sizes, variants, inStock, bestSeller };
         if (name || price || description) {
           localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
         }
       } catch (_) {}
     }, 800);
     return () => clearTimeout(timer);
-  }, [name, price, description, sections, badge, categorySelections, aesthetic, sizes, inStock, bestSeller, initialProduct]);
+  }, [name, price, description, sections, badge, categorySelections, aesthetic, sizes, variants, inStock, bestSeller, initialProduct]);
 
   const clearDraft = () => {
     localStorage.removeItem(DRAFT_KEY);
@@ -673,7 +676,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
         clearDraft();
         setName(''); setPrice(''); setDescription(''); setSections(['New Arrivals']); setBadge('');
         setCategorySelections({}); setAesthetic([]);
-        setSizes([]); setColors([]); setImageItems([]);
+        setSizes([]); setVariants([]); setColors([]); setImageItems([]);
         setInStock(true); setBestSeller(false);
         setSizeChartFile(null); setSizeChartUrl('');
       }
@@ -805,6 +808,44 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
           <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
             <h3 className="text-base font-semibold text-black mb-4">Variants</h3>
             <div className="space-y-6">
+              
+              {/* Variants */}
+              <div>
+                <div className="flex justify-between items-end mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">Advanced Variants (Optional)</label>
+                    <p className="text-[13px] text-[#86868b]">Set different prices and stock for specific sizes or variants (e.g. 8 inch, 12 inch).</p>
+                  </div>
+                  <button type="button" onClick={addVariant} className="text-[#0071e3] text-[13px] font-medium flex items-center gap-1 hover:underline"><Plus className="w-4 h-4" /> Add Variant</button>
+                </div>
+                <div className="space-y-3">
+                  {variants.length === 0 && (
+                    <div className="text-center py-6 border border-dashed border-[#d2d2d7] rounded-xl bg-[#F5F5F7]">
+                      <p className="text-[13px] text-[#86868b]">No advanced variants added.</p>
+                    </div>
+                  )}
+                  {variants.map((v) => (
+                    <div key={v.id} className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-white border border-[#d2d2d7] p-3 rounded-xl shadow-sm">
+                      <div className="flex-1 min-w-[120px]">
+                        <label className="text-[11px] uppercase tracking-widest text-[#86868b] font-semibold mb-1 block">Variant Name</label>
+                        <input type="text" value={v.name} onChange={e => updateVariant(v.id, 'name', e.target.value)} placeholder="e.g. 8 inch" className="w-full text-[13px] p-2 border border-[#d2d2d7] rounded-lg outline-none focus:border-black" />
+                      </div>
+                      <div className="w-24">
+                        <label className="text-[11px] uppercase tracking-widest text-[#86868b] font-semibold mb-1 block">Price (₹)</label>
+                        <input type="number" value={v.price} onChange={e => updateVariant(v.id, 'price', e.target.value)} placeholder="0.00" className="w-full text-[13px] p-2 border border-[#d2d2d7] rounded-lg outline-none focus:border-black" />
+                      </div>
+                      <div className="w-24">
+                        <label className="text-[11px] uppercase tracking-widest text-[#86868b] font-semibold mb-1 block">Stock</label>
+                        <input type="number" value={v.stock} onChange={e => updateVariant(v.id, 'stock', e.target.value)} placeholder="0" className="w-full text-[13px] p-2 border border-[#d2d2d7] rounded-lg outline-none focus:border-black" />
+                      </div>
+                      <button type="button" onClick={() => removeVariant(v.id)} className="p-2 text-[#86868b] hover:text-[#ff3b30] hover:bg-red-50 rounded-lg transition-colors mt-5">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Sizes */}
               <div>
                 <label className="block text-sm font-medium text-black mb-1">Sizes</label>
