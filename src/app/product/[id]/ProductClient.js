@@ -242,7 +242,18 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                 src={optimizeCloudinaryUrl(images[currentImageIndex], 1200)} 
                 alt={`${product.name} ${currentImageIndex + 1}`} 
                 className="w-full h-full object-cover lg:object-contain bg-neutral-50 transition-opacity duration-300" 
+                fetchpriority="high"
               />
+
+              {/* Preload adjacent images for instant swiping */}
+              <div className="hidden">
+                {currentImageIndex > 0 && (
+                  <img src={optimizeCloudinaryUrl(images[currentImageIndex - 1], 1200)} alt="preload prev" />
+                )}
+                {currentImageIndex < images.length - 1 && (
+                  <img src={optimizeCloudinaryUrl(images[currentImageIndex + 1], 1200)} alt="preload next" />
+                )}
+              </div>
 
               {/* Share Icon */}
               <button 
