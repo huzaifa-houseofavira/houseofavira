@@ -7,29 +7,12 @@ import { Plane, Truck, Package, CreditCard, Globe, ShieldCheck, ChevronLeft, Che
 
 export default function WhyHouseOfAvira() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const featuredProductId = '7DzypF64LEWkBY1yruXe';
-  const [featuredSlug, setFeaturedSlug] = useState(featuredProductId);
+  const featuredSlug = 'overload-utility-tote';
   const carouselImages = [
     '/images/bagbg.png',
     '/silver bag.png',
     '/images/bag2.png'
   ];
-
-  useEffect(() => {
-    async function fetchSlug() {
-      try {
-        const res = await fetch('/api/products?limit=1000');
-        const products = await res.json();
-        const found = products.find(p => p.id === featuredProductId);
-        if (found?.slug) {
-          setFeaturedSlug(found.slug);
-        }
-      } catch (err) {
-        // Keep fallback ID
-      }
-    }
-    fetchSlug();
-  }, []);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
