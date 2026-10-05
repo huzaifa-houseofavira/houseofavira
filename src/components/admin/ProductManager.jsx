@@ -441,6 +441,12 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
   };
 
   /* ── Color variant handlers ── */
+  
+  /* Variants handlers */
+  const addVariant = () => setVariants(prev => [...prev, { id: Date.now(), name: '', price: price || '', stock: 1 }]);
+  const removeVariant = (id) => setVariants(prev => prev.filter(v => v.id !== id));
+  const updateVariant = (id, field, value) => setVariants(prev => prev.map(v => v.id === id ? { ...v, [field]: (field === 'price' || field === 'stock' ? Number(value) : value) } : v));
+
   const addColorVariant = () => setColors(prev => [...prev, { id: Date.now(), colorName: '', colorHex: '', imageUrl: '', imageFile: null }]);
   const removeColorVariant = (id) => setColors(prev => prev.filter(c => c.id !== id));
   const updateColorVariant = (id, field, value) => setColors(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
