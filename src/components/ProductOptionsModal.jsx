@@ -33,6 +33,7 @@ export default function ProductOptionsModal() {
         setSelectedColor(null);
       }
       setSelectedSize(preselectedSize || null);
+      setSelectedVariant(preselectedVariant || null);
       setQuantity(1);
     }
   }, [isOpen, product, preselectedColor, preselectedSize, preselectedVariant]);
@@ -41,8 +42,9 @@ export default function ProductOptionsModal() {
 
   const hasColors = product.swatches && product.swatches.length > 0;
   const hasSizes = product.sizes && product.sizes.length > 0;
+  const hasVariants = product.variants && product.variants.length > 0;
 
-  const canAddToCart = (!hasColors || selectedColor) && (!hasSizes || selectedSize);
+  const canAddToCart = (!hasColors || selectedColor) && (!hasSizes || selectedSize) && (!hasVariants || selectedVariant);
 
   const handleAddToCart = async () => {
     if (!canAddToCart) return;
@@ -53,10 +55,10 @@ export default function ProductOptionsModal() {
     const success = await addToCart({
       id: product.id,
       title: product.name || product.title,
-      price: product.price,
+      price: selectedVariant ? selectedVariant.price : product.price,
       image: selectedImage,
       color: selectedColor?.colorName || selectedColor?.color || null,
-      size: selectedSize || null,
+      size: selectedVariant ? selectedVariant.name : (selectedSize || null),
       quantity: quantity,
       availableSizes: product.sizes || []
     });
@@ -77,10 +79,10 @@ export default function ProductOptionsModal() {
     const success = await addToCart({
       id: product.id,
       title: product.name || product.title,
-      price: product.price,
+      price: selectedVariant ? selectedVariant.price : product.price,
       image: selectedImage,
       color: selectedColor?.colorName || selectedColor?.color || null,
-      size: selectedSize || null,
+      size: selectedVariant ? selectedVariant.name : (selectedSize || null),
       quantity: quantity,
       availableSizes: product.sizes || []
     });
@@ -136,7 +138,7 @@ export default function ProductOptionsModal() {
                   {product.name || product.title}
                 </h2>
                 <div className="text-[15px] sm:text-[17px] font-semibold text-neutral-900 mb-2">
-                  <PriceDisplay basePrice={product.price} />
+                  <PriceDisplay basePrice={selectedVariant ? selectedVariant.price : product.price} />
                 </div>
               </div>
             </div>

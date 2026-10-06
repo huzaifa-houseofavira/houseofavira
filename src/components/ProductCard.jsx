@@ -40,8 +40,9 @@ export default function ProductCard({ product }) {
     
     const hasColors = product.swatches && product.swatches.length > 0;
     const hasSizes = product.sizes && product.sizes.length > 0;
+    const hasVariants = product.variants && product.variants.length > 0;
     
-    if (hasColors || hasSizes) {
+    if (hasColors || hasSizes || hasVariants) {
       openQuickAdd(product);
     } else {
       await addToCart({ 

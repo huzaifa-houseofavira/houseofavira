@@ -349,7 +349,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
               </div>
 
               <h1 className="text-2xl md:text-3xl font-medium text-black tracking-wide uppercase mb-3 leading-tight">{product.name}</h1>
-              <p className="text-lg text-[#8A001A] mb-10">₹{(selectedVariant ? selectedVariant.price : product.price).toFixed(2)}</p>
+              <p className="text-lg text-[#8A001A] mb-10">₹{Number(selectedVariant ? selectedVariant.price : product.price).toFixed(2)}</p>
 
               {/* Colors */}
               {product.swatches && product.swatches.length > 0 && (
