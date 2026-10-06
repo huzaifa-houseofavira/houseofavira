@@ -397,7 +397,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                               {v.name} {outOfStock && '- Out of Stock'}
                             </span>
                             <span className="font-bold text-[14px] flex-shrink-0 ml-4">
-                              ₹{v.price.toFixed(2)}
+                              ₹{Number(v.price || 0).toFixed(2)}
                             </span>
                           </button>
                         );
@@ -813,4 +813,5 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
     </div>
   );
 }
+
 

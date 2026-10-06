@@ -279,7 +279,7 @@ export default function ProductOptionsModal() {
                           {v.name} {outOfStock && '- Out of Stock'}
                         </span>
                         <span className="font-bold text-[14px] flex-shrink-0" style={{ color: isSelected ? brandRed : '' }}>
-                          ₹{v.price.toFixed(2)}
+                          ₹{Number(v.price || 0).toFixed(2)}
                         </span>
                       </button>
                     );
@@ -383,4 +383,5 @@ export default function ProductOptionsModal() {
     </>
   );
 }
+
 
