@@ -659,7 +659,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
         imageUrl: finalImageUrls[0] || '',
         images: finalImageUrls,
         sizeChartUrl: finalSizeChartUrl,
-        sizes,
+        sizes, variants,
         swatches: swatchesArray,
         extraColors: swatchesArray.length > 3 ? swatchesArray.length - 3 : 0,
         inStock,
@@ -812,20 +812,20 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
 
           {/* Variants */}
           <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-            <h3 className="text-base font-semibold text-black mb-4">Variants</h3>
+            <h3 className="text-base font-semibold text-black mb-4">Options &amp; Variants</h3>
             <div className="space-y-6">
               
               {/* Variants */}
               <div>
                 <div className="flex justify-between items-end mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Advanced Variants (Optional)</label>
-                    <p className="text-[13px] text-[#86868b]">Set different prices and stock for specific sizes or variants (e.g. 8 inch, 12 inch).</p>
+                    <label className="block text-sm font-medium text-black mb-1">Size Variants with Unique Pricing &amp; Stock</label>
+                    <p className="text-[13px] text-[#86868b]">Set different prices and inventory for specific sizes (e.g. 8 inch vs 12 inch).</p>
                   </div>
                   <button type="button" onClick={addVariant} className="text-[#0071e3] text-[13px] font-medium flex items-center gap-1 hover:underline"><Plus className="w-4 h-4" /> Add Variant</button>
                 </div>
                 <div className="space-y-3">
-                  {variants.length === 0 && (
+                  {variants.length > 0 && ( <div className="mb-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-[13px] text-blue-800 flex items-start gap-2"><div className="shrink-0 mt-0.5">??</div><p>Since you are using size variants with custom prices, you <strong>do not</strong> need to add normal sizes below. The variant names will automatically act as the size choices.</p></div> )} {variants.length === 0 && (
                     <div className="text-center py-6 border border-dashed border-[#d2d2d7] rounded-xl bg-[#F5F5F7]">
                       <p className="text-[13px] text-[#86868b]">No advanced variants added.</p>
                     </div>
@@ -854,8 +854,8 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
 
               {/* Sizes */}
               <div>
-                <label className="block text-sm font-medium text-black mb-1">Sizes</label>
-                <p className="text-[13px] text-[#86868b] mb-2">Type a size and press Enter or comma.</p>
+                <label className="block text-sm font-medium text-black mb-1">Standard Sizes</label>
+                <p className="text-[13px] text-[#86868b] mb-2">Type a size and press Enter or comma. <br/> <span className="text-[#ff3b30]">Do not use this if you added Variants above.</span></p>
                 <div className="p-2 bg-white border border-[#d2d2d7] rounded-xl flex flex-wrap gap-2 focus-within:ring-4 focus-within:ring-[#0071e3]/20 focus-within:border-[#0071e3] transition-all min-h-[46px] items-center">
                   {sizes.map(size => (
                     <span key={size} className="bg-[#F5F5F7] text-black text-[13px] font-medium px-3 py-1 rounded-full flex items-center gap-1.5 border border-[#d2d2d7]">
@@ -1172,3 +1172,6 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
     </div>
   );
 }
+
+
+
