@@ -58,7 +58,7 @@ export default function ProductOptionsModal() {
       price: selectedVariant ? selectedVariant.price : product.price,
       image: selectedImage,
       color: selectedColor?.colorName || selectedColor?.color || null,
-      size: selectedVariant ? selectedVariant.name : (selectedSize || null),
+      size: [selectedSize, selectedVariant?.name].filter(Boolean).join(' / ') || null,
       quantity: quantity,
       availableSizes: product.sizes || []
     });
@@ -82,7 +82,7 @@ export default function ProductOptionsModal() {
       price: selectedVariant ? selectedVariant.price : product.price,
       image: selectedImage,
       color: selectedColor?.colorName || selectedColor?.color || null,
-      size: selectedVariant ? selectedVariant.name : (selectedSize || null),
+      size: [selectedSize, selectedVariant?.name].filter(Boolean).join(' / ') || null,
       quantity: quantity,
       availableSizes: product.sizes || []
     });
@@ -383,3 +383,4 @@ export default function ProductOptionsModal() {
     </>
   );
 }
+

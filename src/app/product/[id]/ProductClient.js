@@ -110,8 +110,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
         if (productData) {
           setProduct(productData);
           addRecentlyViewed(productData);
-          if (productData.variants && productData.variants.length > 0) setSelectedVariant(productData.variants[0]);
-          else if (productData.sizes && productData.sizes.length > 0) setSelectedSize(productData.sizes[0]);
+          if (productData.variants && productData.variants.length > 0) setSelectedVariant(productData.variants[0]); if (productData.sizes && productData.sizes.length > 0) setSelectedSize(productData.sizes[0]);
           if (productData.swatches && productData.swatches.length > 0) setSelectedColor(productData.swatches[0].color);
 
           // Fetch Related Products from cached API
@@ -814,3 +813,4 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
     </div>
   );
 }
+
