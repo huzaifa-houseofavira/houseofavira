@@ -825,7 +825,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
                   <button type="button" onClick={addVariant} className="text-[#0071e3] text-[13px] font-medium flex items-center gap-1 hover:underline"><Plus className="w-4 h-4" /> Add Variant</button>
                 </div>
                 <div className="space-y-3">
-                  {variants.length > 0 && ( <div className="mb-4 bg-blue-50 border border-blue-100 rounded-lg p-3 text-[13px] text-blue-800 flex items-start gap-2"><div className="shrink-0 mt-0.5">??</div><p>Since you are using size variants with custom prices, you <strong>do not</strong> need to add normal sizes below. The variant names will automatically act as the size choices.</p></div> )} {variants.length === 0 && (
+                  {variants.length === 0 && (
                     <div className="text-center py-6 border border-dashed border-[#d2d2d7] rounded-xl bg-[#F5F5F7]">
                       <p className="text-[13px] text-[#86868b]">No advanced variants added.</p>
                     </div>
@@ -855,7 +855,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
               {/* Sizes */}
               <div>
                 <label className="block text-sm font-medium text-black mb-1">Standard Sizes</label>
-                <p className="text-[13px] text-[#86868b] mb-2">Type a size and press Enter or comma. <br/> <span className="text-[#ff3b30]">Do not use this if you added Variants above.</span></p>
+                <p className="text-[13px] text-[#86868b] mb-2">Type a size and press Enter or comma.</p>
                 <div className="p-2 bg-white border border-[#d2d2d7] rounded-xl flex flex-wrap gap-2 focus-within:ring-4 focus-within:ring-[#0071e3]/20 focus-within:border-[#0071e3] transition-all min-h-[46px] items-center">
                   {sizes.map(size => (
                     <span key={size} className="bg-[#F5F5F7] text-black text-[13px] font-medium px-3 py-1 rounded-full flex items-center gap-1.5 border border-[#d2d2d7]">
@@ -1172,6 +1172,8 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
     </div>
   );
 }
+
+
 
 
 
