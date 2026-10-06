@@ -671,12 +671,12 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
           productData.slug = await generateUniqueSlug(name, db, initialProduct.id);
         }
         await updateDoc(doc(db, 'products', initialProduct.id), productData);
-        setSuccess('Product successfully updated!');
+        setSuccess('Product successfully updated!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + (productData.slug || initialProduct.slug) }) }).catch(()=>{});
       } else {
         productData.slug = await generateUniqueSlug(name, db);
         productData.createdAt = serverTimestamp();
         await addDoc(collection(db, 'products'), productData);
-        setSuccess('Product successfully added!');
+        setSuccess('Product successfully added!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + productData.slug }) }).catch(()=>{});
 
         // Clear form + draft
         clearDraft();
@@ -1172,6 +1172,7 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
     </div>
   );
 }
+
 
 
 
