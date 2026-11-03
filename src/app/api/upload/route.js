@@ -1,13 +1,27 @@
 import { NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getStorage } from 'firebase-admin/storage';
+import sharp from 'sharp';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+function getAdminApp() {
+  if (getApps().length > 0) return getApps()[0];
+  let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || '';
+  pk = pk.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+  return initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      privateKey: pk,
+    }),
+    storageBucket: 'houseofavirabyshamhitha.firebasestorage.app',
+  });
+}
 
-export const maxDuration = 60; // Allow more time for Cloudinary uploads
+function getBucket() {
+  return getStorage(getAdminApp()).bucket();
+}
+
+export const maxDuration = 60;
 
 export async function POST(req) {
   try {
@@ -19,41 +33,44 @@ export async function POST(req) {
 
     const isManualCrop = formData.get('manualCrop') === 'true';
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    let buffer = Buffer.from(arrayBuffer);
 
-    const uploadOptions = {
-      folder: 'house-of-avira/products',
-      format: 'webp',
-      quality: 'auto',
-    };
+    let sharpInstance = sharp(buffer);
 
     if (!isManualCrop) {
-      uploadOptions.aspect_ratio = '3:4';
-      uploadOptions.crop = 'fill';
-      uploadOptions.gravity = 'auto';
-      uploadOptions.width = 900;
-      uploadOptions.height = 1200;
+      sharpInstance = sharpInstance
+        .resize(900, 1200, { fit: 'cover', position: 'attention' });
     } else {
-      uploadOptions.crop = 'limit';
-      uploadOptions.width = 1600;
-      uploadOptions.height = 1600;
+      sharpInstance = sharpInstance
+        .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true });
     }
 
-    const url = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        uploadOptions,
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result.secure_url);
-        }
-      );
-      uploadStream.end(buffer);
+    buffer = await sharpInstance
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 10);
+    const filename = `products/${timestamp}_${random}.webp`;
+
+    const bucket = getBucket();
+    const fileRef = bucket.file(filename);
+
+    await fileRef.save(buffer, {
+      metadata: {
+        contentType: 'image/webp',
+        cacheControl: 'public, max-age=31536000',
+      },
     });
+
+    await fileRef.makePublic();
+
+    const url = `https://storage.googleapis.com/${bucket.name}/${filename}`;
 
     return NextResponse.json({ success: true, url });
   } catch (error) {
-    console.error("Cloudinary upload API error:", error);
-    const errorMsg = error.message || error.error?.message || JSON.stringify(error) || String(error);
+    console.error("Firebase Storage upload API error:", error);
+    const errorMsg = error.message || String(error);
     return NextResponse.json({ success: false, error: errorMsg }, { status: 500 });
   }
 }

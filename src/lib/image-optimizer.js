@@ -1,6 +1,9 @@
 export function optimizeCloudinaryUrl(url, width = 800) {
   if (!url || typeof url !== 'string') return url;
   
+  // Firebase Storage URLs don't need transformation - images are already optimized at upload
+  if (url.includes('storage.googleapis.com')) return url;
+  
   // Only optimize if it's a Cloudinary URL
   if (!url.includes('res.cloudinary.com')) return url;
   
