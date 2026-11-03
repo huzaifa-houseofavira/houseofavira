@@ -140,7 +140,7 @@ export default function HomeClient() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products', { next: { revalidate: 60 } });
+        const res = await fetch('/api/products', { cache: 'no-store' });
         const fetchedProducts = await res.json();
 
         // If empty, fall back to dummy data so layout isn't broken

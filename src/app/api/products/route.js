@@ -3,20 +3,21 @@ import { adminDb } from '@/lib/firebase-admin';
 // In-memory cache with TTL
 let productsCache = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 60 * 1000; // 1 minute
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const maxItems = parseInt(searchParams.get('limit') || '1000', 10);
+  const noCache = searchParams.get('nocache') === 'true' || searchParams.has('_t');
 
   const now = Date.now();
 
   // Return cached data if fresh
-  if (productsCache && (now - cacheTimestamp) < CACHE_TTL) {
+  if (!noCache && productsCache && (now - cacheTimestamp) < CACHE_TTL) {
     const sliced = productsCache.slice(0, maxItems);
     return Response.json(sliced, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
       },
     });
   }
@@ -49,7 +50,7 @@ export async function GET(request) {
     const sliced = products.slice(0, maxItems);
     return Response.json(sliced, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
       },
     });
   } catch (error) {
