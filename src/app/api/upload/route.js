@@ -1,25 +1,5 @@
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getStorage } from 'firebase-admin/storage';
-import sharp from 'sharp';
-
-function getAdminApp() {
-  if (getApps().length > 0) return getApps()[0];
-  let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || '';
-  pk = pk.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
-  return initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      privateKey: pk,
-    }),
-    storageBucket: 'houseofavirabyshamhitha.firebasestorage.app',
-  });
-}
-
-function getBucket() {
-  return getStorage(getAdminApp()).bucket();
-}
+import { adminBucket, BUCKET_NAME } from '@/lib/firebase-admin';
 
 export const maxDuration = 60;
 
@@ -31,41 +11,38 @@ export async function POST(req) {
       return NextResponse.json({ success: false, error: "No image provided" }, { status: 400 });
     }
 
-    const isManualCrop = formData.get('manualCrop') === 'true';
-    const arrayBuffer = await file.arrayBuffer();
-    let buffer = Buffer.from(arrayBuffer);
-
-    let sharpInstance = sharp(buffer);
-
-    if (!isManualCrop) {
-      sharpInstance = sharpInstance
-        .resize(900, 1200, { fit: 'cover', position: 'attention' });
-    } else {
-      sharpInstance = sharpInstance
-        .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true });
+    if (!adminBucket) {
+      throw new Error("Firebase Storage bucket is not available");
     }
 
-    buffer = await sharpInstance
-      .webp({ quality: 80 })
-      .toBuffer();
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Determine extension & contentType
+    const originalName = file.name || 'image.webp';
+    const ext = originalName.split('.').pop()?.toLowerCase() || 'webp';
+    const contentType = file.type || (ext === 'webp' ? 'image/webp' : ext === 'png' ? 'image/png' : 'image/jpeg');
 
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 10);
-    const filename = `products/${timestamp}_${random}.webp`;
+    const filename = `products/${timestamp}_${random}.${ext}`;
 
-    const bucket = getBucket();
-    const fileRef = bucket.file(filename);
+    const fileRef = adminBucket.file(filename);
 
     await fileRef.save(buffer, {
       metadata: {
-        contentType: 'image/webp',
+        contentType,
         cacheControl: 'public, max-age=31536000',
       },
     });
 
-    await fileRef.makePublic();
+    try {
+      await fileRef.makePublic();
+    } catch (pubErr) {
+      console.warn("makePublic warning (may already be public or bucket-level policy):", pubErr.message);
+    }
 
-    const url = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+    const url = `https://storage.googleapis.com/${BUCKET_NAME}/${filename}`;
 
     return NextResponse.json({ success: true, url });
   } catch (error) {

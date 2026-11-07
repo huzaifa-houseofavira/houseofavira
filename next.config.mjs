@@ -2,7 +2,7 @@
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
-  serverExternalPackages: ['firebase-admin', 'nodemailer', 'razorpay', 'sharp'],
+  serverExternalPackages: ['firebase-admin', 'nodemailer', 'razorpay'],
   experimental: {
     serverActions: {
       bodySizeLimit: '15mb',

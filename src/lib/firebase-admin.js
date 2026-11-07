@@ -1,30 +1,46 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
+
+export const BUCKET_NAME = 'houseofavirabyshamhitha.firebasestorage.app';
 
 function initAdmin() {
+  let app;
   if (getApps().length > 0) {
-    return getFirestore();
+    app = getApps()[0];
+  } else {
+    try {
+      let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || '';
+      pk = pk.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
+
+      app = initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+          privateKey: pk,
+        }),
+        storageBucket: BUCKET_NAME,
+      });
+    } catch (error) {
+      console.error('Firebase Admin initialization error:', error.message);
+      return { db: null, bucket: null };
+    }
   }
 
   try {
-    let pk = process.env.FIREBASE_ADMIN_PRIVATE_KEY || '';
-    pk = pk.replace(/\\n/g, '\n').replace(/^"|"$/g, '');
-
-    const app = initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-        privateKey: pk,
-      }),
-    });
-
     const db = getFirestore(app);
-    db.settings({ ignoreUndefinedProperties: true });
-    return db;
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error.message);
-    return null;
+    try {
+      db.settings({ ignoreUndefinedProperties: true });
+    } catch (sErr) {
+      // Ignore if settings already applied
+    }
+    const bucket = getStorage(app).bucket(BUCKET_NAME);
+    return { db, bucket };
+  } catch (err) {
+    console.error('Firebase Admin services initialization error:', err.message);
+    return { db: null, bucket: null };
   }
 }
 
-export const adminDb = initAdmin();
+const { db: adminDb, bucket: adminBucket } = initAdmin();
+export { adminDb, adminBucket };
