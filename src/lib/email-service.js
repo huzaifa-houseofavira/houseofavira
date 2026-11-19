@@ -1,21 +1,36 @@
 // ─── Email Service — Reusable Nodemailer Abstraction ───
-// Handles all shipping-related email templates and sending
+// Handles all shipping-related and order email templates and sending
 
 import nodemailer from 'nodemailer';
 
 function createTransporter() {
+  const user = (process.env.EMAIL_USER || 'houseofaviraorders@gmail.com')
+    .trim()
+    .replace(/^["']|["']$/g, '');
+
+  let pass = (process.env.EMAIL_PASS || '')
+    .trim()
+    .replace(/^["']|["']$/g, '');
+
+  // Google App Passwords are 16 letters (often generated as 4 groups of 4 letters with spaces).
+  // Normalizing by stripping spaces ensures exact match.
+  const cleanPass = pass.replace(/\s+/g, '');
+  if (cleanPass.length === 16) {
+    pass = cleanPass;
+  }
+
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER || 'houseofavira@gmail.com',
-      pass: process.env.EMAIL_PASS,
+      user,
+      pass,
     },
   });
 }
 
 const BRAND = {
   name: 'House of Avira',
-  email: process.env.EMAIL_USER || 'houseofavira@gmail.com',
+  email: (process.env.EMAIL_USER || 'houseofaviraorders@gmail.com').trim().replace(/^["']|["']$/g, ''),
   website: 'https://houseofavira.shop',
   year: new Date().getFullYear(),
 };
@@ -64,7 +79,7 @@ export function generateShippingInvoiceHtml({ customerName, orderId, shippingAmo
 
   const content = `
     <h2 style="font-size: 22px; font-weight: 500; color: #000000; margin: 0 0 8px 0;">
-      Hi ${customerName},
+      Hi ${customerName || 'there'},
     </h2>
     <p style="font-size: 14px; color: #666666; line-height: 1.7; margin: 0 0 28px 0;">
       Your shipment batch has been processed! Below is your shipping &amp; import cost for your order.
@@ -118,7 +133,7 @@ export function generateShippingInvoiceHtml({ customerName, orderId, shippingAmo
 export function generatePaymentReceivedHtml({ customerName, orderId, amount, currencySymbol = '₹' }) {
   const content = `
     <h2 style="font-size: 22px; font-weight: 500; color: #000000; margin: 0 0 8px 0;">
-      Hi ${customerName},
+      Hi ${customerName || 'there'},
     </h2>
     <p style="font-size: 14px; color: #666666; line-height: 1.7; margin: 0 0 28px 0;">
       We've received your shipping payment. Your order is now being prepared for dispatch!
@@ -152,8 +167,9 @@ export function generatePaymentReceivedHtml({ customerName, orderId, amount, cur
 }
 
 // ── Order Confirmation Email (Customer) ──
-export function generateOrderConfirmationHtml({ customerName, orderId, items, payableAmount, shippingAddress, currencySymbol = '₹' }) {
-  const itemsList = items.map(item => `
+export function generateOrderConfirmationHtml({ customerName, orderId, items = [], payableAmount = 0, shippingAddress = {}, currencySymbol = '₹' }) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const itemsList = safeItems.map(item => `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
         <table style="width: 100%; border-collapse: collapse;">
@@ -163,22 +179,37 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items, pa
             </td>
             <td style="vertical-align: top; padding-left: 12px;">
               <span style="font-weight: 600; color: #000000; display: block; margin-bottom: 4px;">${item.name || item.title || 'Unknown Item'}</span>
-              ${item.size ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${item.size}</span>` : ''}
-              ${item.color ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${item.color}</span>` : ''}
+              ${item.size || item.selectedSize ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${item.size || item.selectedSize}</span>` : ''}
+              ${item.color || item.selectedColor ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${item.color || item.selectedColor}</span>` : ''}
               <span style="font-size: 12px; color: #888888; display: block; margin-top: 4px;">Qty: ${item.quantity || 1}</span>
             </td>
           </tr>
         </table>
       </td>
       <td style="text-align: right; padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-weight: 500; vertical-align: top;">
-        ${currencySymbol}${(item.price * (item.quantity || 1)).toLocaleString()}
+        ${currencySymbol}${(Number(item.price || 0) * (item.quantity || 1)).toLocaleString()}
       </td>
     </tr>
   `).join('');
 
+  const safeAddress = shippingAddress || {};
+  const addrLine1 = safeAddress.addressLine1 || safeAddress.line1 || '';
+  const addrLine2 = safeAddress.addressLine2 || safeAddress.line2 || '';
+  const city = safeAddress.city || '';
+  const state = safeAddress.state || '';
+  const pincode = safeAddress.pincode || safeAddress.postalCode || '';
+  const country = safeAddress.country || 'India';
+
+  const addressFormatted = [
+    addrLine1,
+    addrLine2,
+    [city, state, pincode].filter(Boolean).join(', '),
+    country
+  ].filter(Boolean).join('<br>') || 'Address on file';
+
   const content = `
     <h2 style="font-size: 22px; font-weight: 500; color: #000000; margin: 0 0 8px 0;">
-      Hi ${customerName},
+      Hi ${customerName || 'Valued Customer'},
     </h2>
     <p style="font-size: 14px; color: #666666; line-height: 1.7; margin: 0 0 24px 0;">
       Thank you for your order! We've received it and are currently processing it.
@@ -192,7 +223,7 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items, pa
         <tr>
           <td style="padding: 12px 0 0 0; font-weight: 700; color: #000000;">Total Paid (Product Only)</td>
           <td style="text-align: right; padding: 12px 0 0 0; font-weight: 700; font-size: 16px; color: #000000;">
-            ${currencySymbol}${Number(payableAmount).toLocaleString()}
+            ${currencySymbol}${Number(payableAmount || 0).toLocaleString()}
           </td>
         </tr>
       </table>
@@ -206,10 +237,7 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items, pa
 
     <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888888; margin: 0 0 8px 0;">Shipping Address</h3>
     <p style="font-size: 14px; color: #444444; line-height: 1.5; margin: 0;">
-      ${shippingAddress.addressLine1}<br>
-      ${shippingAddress.addressLine2 ? shippingAddress.addressLine2 + '<br>' : ''}
-      ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.pincode}<br>
-      ${shippingAddress.country}
+      ${addressFormatted}
     </p>
   `;
 
@@ -217,8 +245,9 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items, pa
 }
 
 // ── Admin Order Notification Email ──
-export function generateAdminNotificationHtml({ orderId, customerName, customerEmail, items, itemsCount, payableAmount, currencySymbol = '₹', shippingAddress, customerPhone }) {
-  const itemsList = items?.map(item => `
+export function generateAdminNotificationHtml({ orderId, customerName, customerEmail, items = [], itemsCount, payableAmount = 0, currencySymbol = '₹', shippingAddress = {}, customerPhone }) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const itemsList = safeItems.map(item => `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
         <table style="width: 100%; border-collapse: collapse;">
@@ -228,36 +257,46 @@ export function generateAdminNotificationHtml({ orderId, customerName, customerE
             </td>
             <td style="vertical-align: top; padding-left: 12px;">
               <span style="font-weight: 600; color: #000000; display: block; margin-bottom: 4px;">${item.name || item.title || 'Unknown Item'}</span>
-              ${item.size ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${item.size}</span>` : ''}
-              ${item.color ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${item.color}</span>` : ''}
+              ${item.size || item.selectedSize ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${item.size || item.selectedSize}</span>` : ''}
+              ${item.color || item.selectedColor ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${item.color || item.selectedColor}</span>` : ''}
               <span style="font-size: 12px; color: #888888; display: block; margin-top: 4px;">Qty: ${item.quantity || 1}</span>
             </td>
           </tr>
         </table>
       </td>
       <td style="text-align: right; padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-weight: 500; vertical-align: top;">
-        ${currencySymbol}${(item.price * (item.quantity || 1)).toLocaleString()}
+        ${currencySymbol}${(Number(item.price || 0) * (item.quantity || 1)).toLocaleString()}
       </td>
     </tr>
-  `).join('') || '';
+  `).join('');
 
-  const addressHtml = shippingAddress ? `
+  const safeAddress = shippingAddress || {};
+  const addrLine1 = safeAddress.addressLine1 || safeAddress.line1 || '';
+  const addrLine2 = safeAddress.addressLine2 || safeAddress.line2 || '';
+  const city = safeAddress.city || '';
+  const state = safeAddress.state || '';
+  const pincode = safeAddress.pincode || safeAddress.postalCode || '';
+  const country = safeAddress.country || 'India';
+  const nameOnAddress = [safeAddress.firstName, safeAddress.lastName].filter(Boolean).join(' ');
+
+  const addressHtml = (addrLine1 || city) ? `
     <tr>
       <td style="color: #888888; padding: 12px 0 6px 0; vertical-align: top;">Shipping Details</td>
       <td style="color: #000000; text-align: right; font-weight: 500; padding: 12px 0 6px 0;">
-        ${shippingAddress.firstName} ${shippingAddress.lastName}<br>
-        ${shippingAddress.addressLine1}<br>
-        ${shippingAddress.addressLine2 ? `${shippingAddress.addressLine2}<br>` : ''}
-        ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.pincode}<br>
-        ${shippingAddress.country}
+        ${nameOnAddress ? `${nameOnAddress}<br>` : ''}
+        ${addrLine1 ? `${addrLine1}<br>` : ''}
+        ${addrLine2 ? `${addrLine2}<br>` : ''}
+        ${[city, state, pincode].filter(Boolean).join(', ')}<br>
+        ${country}
       </td>
     </tr>
   ` : '';
 
-  const phoneHtml = (customerPhone || (shippingAddress && shippingAddress.phone)) ? `
+  const effectivePhone = customerPhone || safeAddress.phone || '';
+  const phoneHtml = effectivePhone ? `
     <tr>
       <td style="color: #888888; padding: 6px 0; border-bottom: 2px solid #e8e8e8;">Phone</td>
-      <td style="color: #000000; text-align: right; font-weight: 600; border-bottom: 2px solid #e8e8e8;">${customerPhone || shippingAddress.phone}</td>
+      <td style="color: #000000; text-align: right; font-weight: 600; border-bottom: 2px solid #e8e8e8;">${effectivePhone}</td>
     </tr>
   ` : '';
 
@@ -273,11 +312,11 @@ export function generateAdminNotificationHtml({ orderId, customerName, customerE
         </tr>
         <tr>
           <td style="color: #888888; padding: 6px 0;">Customer</td>
-          <td style="color: #000000; text-align: right; font-weight: 600;">${customerName}</td>
+          <td style="color: #000000; text-align: right; font-weight: 600;">${customerName || 'N/A'}</td>
         </tr>
         <tr>
-          <td style="color: #888888; padding: 6px 0; ${(customerPhone || (shippingAddress && shippingAddress.phone)) || shippingAddress ? '' : 'border-bottom: 2px solid #e8e8e8;'}">Email</td>
-          <td style="color: #000000; text-align: right; font-weight: 600; ${(customerPhone || (shippingAddress && shippingAddress.phone)) || shippingAddress ? '' : 'border-bottom: 2px solid #e8e8e8;'}">${customerEmail}</td>
+          <td style="color: #888888; padding: 6px 0; ${effectivePhone || addressHtml ? '' : 'border-bottom: 2px solid #e8e8e8;'}">Email</td>
+          <td style="color: #000000; text-align: right; font-weight: 600; ${effectivePhone || addressHtml ? '' : 'border-bottom: 2px solid #e8e8e8;'}">${customerEmail || 'N/A'}</td>
         </tr>
         ${phoneHtml}
         ${addressHtml}
@@ -287,7 +326,7 @@ export function generateAdminNotificationHtml({ orderId, customerName, customerE
         ${itemsList}
         <tr style="border-top: 1px solid #e8e8e8;">
           <td style="color: #000000; padding: 12px 0 0 0; font-weight: 700;">Total Paid (Product Only)</td>
-          <td style="color: #000000; text-align: right; padding: 12px 0 0 0; font-weight: 700;">${currencySymbol}${Number(payableAmount).toLocaleString()}</td>
+          <td style="color: #000000; text-align: right; padding: 12px 0 0 0; font-weight: 700;">${currencySymbol}${Number(payableAmount || 0).toLocaleString()}</td>
         </tr>
       </table>
     </div>
@@ -304,8 +343,11 @@ export function generateAdminNotificationHtml({ orderId, customerName, customerE
 
 // ── Send Email Functions ──
 export async function sendShippingInvoiceEmail({ customerEmail, customerName, orderId, shippingAmount, dueDate, batchRef, currencySymbol, paymentLinkUrl }) {
-  const transporter = createTransporter();
+  if (!customerEmail) {
+    throw new Error(`sendShippingInvoiceEmail: No customer email provided for order ${orderId}`);
+  }
 
+  const transporter = createTransporter();
   const html = generateShippingInvoiceHtml({ customerName, orderId, shippingAmount, dueDate, batchRef, currencySymbol, paymentLinkUrl });
 
   const mailOptions = {
@@ -313,16 +355,21 @@ export async function sendShippingInvoiceEmail({ customerEmail, customerName, or
     to: customerEmail,
     subject: `Shipping Payment Due — Order ${orderId}`,
     html,
-    text: `Hi ${customerName},\n\nYour shipment batch has been processed. Your shipping amount due for Order ${orderId} is ${currencySymbol || '₹'}${shippingAmount}.\n\nThis is your second payment for this order — the shipping & import cost.\n\nDue date: ${dueDate ? new Date(dueDate).toLocaleDateString() : 'As soon as possible'}\n\nPlease visit ${paymentLinkUrl || BRAND.website} to complete your payment.\n\nThank you,\nThe House of Avira Team`,
+    text: `Hi ${customerName || 'there'},\n\nYour shipment batch has been processed. Your shipping amount due for Order ${orderId} is ${currencySymbol || '₹'}${shippingAmount}.\n\nThis is your second payment for this order — the shipping & import cost.\n\nDue date: ${dueDate ? new Date(dueDate).toLocaleDateString() : 'As soon as possible'}\n\nPlease visit ${paymentLinkUrl || BRAND.website} to complete your payment.\n\nThank you,\nThe House of Avira Team`,
     replyTo: BRAND.email,
   };
 
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log(`[email-service] Shipping invoice email sent to ${customerEmail} for ${orderId}: ${info.messageId}`);
+  return { success: true, messageId: info.messageId };
 }
 
 export async function sendShippingPaymentReceivedEmail({ customerEmail, customerName, orderId, amount, currencySymbol }) {
-  const transporter = createTransporter();
+  if (!customerEmail) {
+    throw new Error(`sendShippingPaymentReceivedEmail: No customer email provided for order ${orderId}`);
+  }
 
+  const transporter = createTransporter();
   const html = generatePaymentReceivedHtml({ customerName, orderId, amount, currencySymbol });
 
   const mailOptions = {
@@ -330,14 +377,20 @@ export async function sendShippingPaymentReceivedEmail({ customerEmail, customer
     to: customerEmail,
     subject: `Shipping Payment Received — Order ${orderId}`,
     html,
-    text: `Hi ${customerName},\n\nWe've received your shipping payment of ${currencySymbol || '₹'}${amount} for Order ${orderId}.\n\nYour order is now being prepared for dispatch. We'll notify you with tracking details once shipped.\n\nThank you for shopping with House of Avira!`,
+    text: `Hi ${customerName || 'there'},\n\nWe've received your shipping payment of ${currencySymbol || '₹'}${amount} for Order ${orderId}.\n\nYour order is now being prepared for dispatch. We'll notify you with tracking details once shipped.\n\nThank you for shopping with House of Avira!`,
     replyTo: BRAND.email,
   };
 
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log(`[email-service] Shipping payment received email sent to ${customerEmail} for ${orderId}: ${info.messageId}`);
+  return { success: true, messageId: info.messageId };
 }
 
 export async function sendOrderConfirmationEmail({ customerEmail, customerName, orderId, items, payableAmount, shippingAddress, currencySymbol }) {
+  if (!customerEmail) {
+    throw new Error(`sendOrderConfirmationEmail: No recipient email provided for order ${orderId}`);
+  }
+
   const transporter = createTransporter();
   const html = generateOrderConfirmationHtml({ customerName, orderId, items, payableAmount, shippingAddress, currencySymbol });
 
@@ -346,24 +399,66 @@ export async function sendOrderConfirmationEmail({ customerEmail, customerName, 
     to: customerEmail,
     subject: `Order Confirmation — ${orderId}`,
     html,
-    text: `Hi ${customerName},\n\nThank you for your order!\nOrder ID: ${orderId}\nTotal Paid: ${currencySymbol || '₹'}${payableAmount}\n\nNote: This payment was for the product only. You will receive a second email for shipping costs later.\n\nThank you for shopping with House of Avira!`,
+    text: `Hi ${customerName || 'there'},\n\nThank you for your order!\nOrder ID: ${orderId}\nTotal Paid: ${currencySymbol || '₹'}${payableAmount}\n\nNote: This payment was for the product only. You will receive a second email for shipping costs later.\n\nThank you for shopping with House of Avira!`,
     replyTo: BRAND.email,
   };
 
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log(`[email-service] Order confirmation email sent to ${customerEmail} for ${orderId}: ${info.messageId}`);
+  return { success: true, messageId: info.messageId };
 }
 
 export async function sendAdminOrderNotificationEmail({ orderId, customerName, customerEmail, customerPhone, items, itemsCount, payableAmount, currencySymbol, shippingAddress }) {
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'houseofavira@gmail.com';
   const transporter = createTransporter();
   const html = generateAdminNotificationHtml({ orderId, customerName, customerEmail, items, itemsCount, payableAmount, currencySymbol, shippingAddress, customerPhone });
 
   const mailOptions = {
     from: `"House of Avira" <${BRAND.email}>`,
-    to: 'houseofavira@gmail.com', // Explicitly to admin
+    to: adminEmail,
     subject: `New Order Received — ${orderId}`,
     html,
-    text: `New order ${orderId} received from ${customerName} (${customerEmail}). Phone: ${customerPhone || (shippingAddress && shippingAddress.phone) || 'N/A'}. Items: ${itemsCount}. Amount: ${currencySymbol || '₹'}${payableAmount}.`
+    text: `New order ${orderId} received from ${customerName || 'Customer'} (${customerEmail || 'No email'}). Phone: ${customerPhone || (shippingAddress && shippingAddress.phone) || 'N/A'}. Items: ${itemsCount || (items?.length || 1)}. Amount: ${currencySymbol || '₹'}${payableAmount}.`
   };
 
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log(`[email-service] Admin notification email sent to ${adminEmail} for ${orderId}: ${info.messageId}`);
+  return { success: true, messageId: info.messageId };
+}
+
+// ── Email Config Diagnostic ──
+export async function verifyEmailConfig() {
+  try {
+    const user = (process.env.EMAIL_USER || 'houseofaviraorders@gmail.com').trim().replace(/^["']|["']$/g, '');
+    let pass = (process.env.EMAIL_PASS || '').trim().replace(/^["']|["']$/g, '');
+    const cleanPass = pass.replace(/\s+/g, '');
+    if (cleanPass.length === 16) {
+      pass = cleanPass;
+    }
+
+    if (!user || !pass) {
+      return {
+        success: false,
+        configured: false,
+        user: user || null,
+        error: 'EMAIL_USER or EMAIL_PASS environment variable is missing.'
+      };
+    }
+
+    const transporter = createTransporter();
+    await transporter.verify();
+    return {
+      success: true,
+      configured: true,
+      user,
+      message: 'SMTP connection verified successfully.'
+    };
+  } catch (err) {
+    return {
+      success: false,
+      configured: true,
+      code: err.code || 'UNKNOWN',
+      error: err.message
+    };
+  }
 }

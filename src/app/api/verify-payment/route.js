@@ -93,8 +93,17 @@ export async function POST(request) {
         currencySymbol,
         shippingAddress: orderData.shipping_address
       });
+
+      await orderRef.update({
+        confirmation_email_sent: true,
+        confirmation_email_sent_at: new Date().toISOString(),
+      });
     } catch (emailErr) {
       console.error('Failed to send order emails on payment verification:', emailErr);
+      await orderRef.update({
+        confirmation_email_sent: false,
+        confirmation_email_error: emailErr.message || 'Unknown email error',
+      });
     }
 
     return NextResponse.json({ success: true, message: 'Payment verified successfully.' });

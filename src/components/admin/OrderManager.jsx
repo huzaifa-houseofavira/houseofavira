@@ -16,6 +16,8 @@ export default function OrderManager({ onAddOrder }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [resendingEmail, setResendingEmail] = useState(null);
+  const [emailMessage, setEmailMessage] = useState(null);
 
   useEffect(() => {
     async function fetchAllOrders() {
@@ -45,12 +47,35 @@ export default function OrderManager({ onAddOrder }) {
 
   const openModal = (order) => {
     setSelectedOrder(order);
+    setEmailMessage(null);
     document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setSelectedOrder(null);
+    setEmailMessage(null);
     document.body.style.overflow = 'auto';
+  };
+
+  const handleResendEmail = async (orderId) => {
+    try {
+      setResendingEmail(orderId);
+      setEmailMessage(null);
+      const res = await fetch(`/api/admin/orders/${orderId}/resend-confirmation`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || data.error || 'Failed to send email');
+      }
+      setEmailMessage({ type: 'success', text: data.message || 'Email sent successfully!' });
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, confirmation_email_sent: true } : o));
+      setSelectedOrder(prev => prev && prev.id === orderId ? { ...prev, confirmation_email_sent: true } : prev);
+    } catch (err) {
+      setEmailMessage({ type: 'error', text: err.message });
+    } finally {
+      setResendingEmail(null);
+    }
   };
 
   if (loading) {
@@ -242,6 +267,39 @@ export default function OrderManager({ onAddOrder }) {
                           <span className="font-medium text-black">{selectedOrder.customer_instagram}</span>
                         </div>
                       )}
+
+                      {/* Confirmation Email Status & Action */}
+                      <div className="pt-3 border-t border-[#d2d2d7]/50">
+                        <div className="flex items-center justify-between text-xs mb-2">
+                          <span className="text-[#86868b]">Confirmation Email:</span>
+                          <span className={`font-semibold ${selectedOrder.confirmation_email_sent ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {selectedOrder.confirmation_email_sent ? 'Sent ✓' : 'Not Confirmed / Failed'}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleResendEmail(selectedOrder.id)}
+                          disabled={resendingEmail === selectedOrder.id}
+                          className="w-full py-2 px-3 bg-black hover:bg-neutral-800 text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          {resendingEmail === selectedOrder.id ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Mail className="w-3.5 h-3.5" />
+                              <span>Resend Confirmation Email</span>
+                            </>
+                          )}
+                        </button>
+                        {emailMessage && (
+                          <p className={`text-xs text-center mt-2 font-medium ${emailMessage.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                            {emailMessage.text}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 

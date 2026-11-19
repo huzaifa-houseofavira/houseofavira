@@ -58,10 +58,9 @@ export async function POST(request) {
 
       const orderDoc = snapshot.docs[0];
       const orderData = orderDoc.data();
+      const isAlreadyConfirmed = orderData.product_payment_status === PRODUCT_PAYMENT_STATUS.CONFIRMED;
 
-      // Idempotency check: if already confirmed, skip
-      if (orderData.product_payment_status !== PRODUCT_PAYMENT_STATUS.CONFIRMED) {
-        
+      if (!isAlreadyConfirmed) {
         // Extract payment details for receipt
         const paymentDetails = {
           method: paymentEntity.method,
@@ -74,6 +73,7 @@ export async function POST(request) {
         };
 
         await orderDoc.ref.update({
+          order_status: ORDER_STATUS.PRODUCT_PAID,
           product_payment_status: PRODUCT_PAYMENT_STATUS.CONFIRMED,
           razorpay_payment_id: razorpayPaymentId,
           payment_details: paymentDetails,
@@ -81,8 +81,12 @@ export async function POST(request) {
         });
 
         console.log(`Webhook: Order ${orderDoc.id} confirmed via payment.captured`);
-        
-        // ── Send Emails (Fallback if verify-payment missed it) ──
+      } else {
+        console.log(`Webhook: Order ${orderDoc.id} already confirmed.`);
+      }
+
+      // ── Send Confirmation Email if not already sent ──
+      if (!orderData.confirmation_email_sent) {
         try {
           const { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } = await import('@/lib/email-service');
           const currencySymbol = '₹';
@@ -108,12 +112,19 @@ export async function POST(request) {
             currencySymbol,
             shippingAddress: orderData.shipping_address
           });
+
+          await orderDoc.ref.update({
+            confirmation_email_sent: true,
+            confirmation_email_sent_at: new Date().toISOString(),
+          });
+          console.log(`Webhook: Successfully sent confirmation email for ${orderDoc.id}`);
         } catch (emailErr) {
           console.error(`Webhook: Failed to send order emails for ${orderDoc.id}:`, emailErr);
+          await orderDoc.ref.update({
+            confirmation_email_sent: false,
+            confirmation_email_error: emailErr.message || 'Unknown email error',
+          });
         }
-
-      } else {
-        console.log(`Webhook: Order ${orderDoc.id} already confirmed, skipping update.`);
       }
 
     } else if (event.event === 'payment.failed') {
