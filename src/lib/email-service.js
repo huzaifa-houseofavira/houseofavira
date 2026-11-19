@@ -169,7 +169,17 @@ export function generatePaymentReceivedHtml({ customerName, orderId, amount, cur
 // ── Order Confirmation Email (Customer) ──
 export function generateOrderConfirmationHtml({ customerName, orderId, items = [], payableAmount = 0, shippingAddress = {}, currencySymbol = '₹' }) {
   const safeItems = Array.isArray(items) ? items : [];
-  const itemsList = safeItems.map(item => `
+  const itemsList = safeItems.map(item => {
+    let size = item.size || item.selectedSize || '';
+    let color = item.color || item.selectedColor || item.variant || item.colorName || '';
+    if ((!size || !color) && item.cartItemId && typeof item.cartItemId === 'string') {
+      const parts = item.cartItemId.split('-');
+      if (parts.length >= 3) {
+        if (!size && parts[1]) size = parts[1];
+        if (!color && parts.slice(2).join('-')) color = parts.slice(2).join('-');
+      }
+    }
+    return `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
         <table style="width: 100%; border-collapse: collapse;">
@@ -179,8 +189,8 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items = [
             </td>
             <td style="vertical-align: top; padding-left: 12px;">
               <span style="font-weight: 600; color: #000000; display: block; margin-bottom: 4px;">${item.name || item.title || 'Unknown Item'}</span>
-              ${item.size || item.selectedSize ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${item.size || item.selectedSize}</span>` : ''}
-              ${item.color || item.selectedColor ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${item.color || item.selectedColor}</span>` : ''}
+              ${size ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${size}</span>` : ''}
+              ${color ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${color}</span>` : ''}
               <span style="font-size: 12px; color: #888888; display: block; margin-top: 4px;">Qty: ${item.quantity || 1}</span>
             </td>
           </tr>
@@ -190,7 +200,8 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items = [
         ${currencySymbol}${(Number(item.price || 0) * (item.quantity || 1)).toLocaleString()}
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   const safeAddress = shippingAddress || {};
   const addrLine1 = safeAddress.addressLine1 || safeAddress.line1 || '';
@@ -247,7 +258,17 @@ export function generateOrderConfirmationHtml({ customerName, orderId, items = [
 // ── Admin Order Notification Email ──
 export function generateAdminNotificationHtml({ orderId, customerName, customerEmail, items = [], itemsCount, payableAmount = 0, currencySymbol = '₹', shippingAddress = {}, customerPhone }) {
   const safeItems = Array.isArray(items) ? items : [];
-  const itemsList = safeItems.map(item => `
+  const itemsList = safeItems.map(item => {
+    let size = item.size || item.selectedSize || '';
+    let color = item.color || item.selectedColor || item.variant || item.colorName || '';
+    if ((!size || !color) && item.cartItemId && typeof item.cartItemId === 'string') {
+      const parts = item.cartItemId.split('-');
+      if (parts.length >= 3) {
+        if (!size && parts[1]) size = parts[1];
+        if (!color && parts.slice(2).join('-')) color = parts.slice(2).join('-');
+      }
+    }
+    return `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
         <table style="width: 100%; border-collapse: collapse;">
@@ -257,8 +278,8 @@ export function generateAdminNotificationHtml({ orderId, customerName, customerE
             </td>
             <td style="vertical-align: top; padding-left: 12px;">
               <span style="font-weight: 600; color: #000000; display: block; margin-bottom: 4px;">${item.name || item.title || 'Unknown Item'}</span>
-              ${item.size || item.selectedSize ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${item.size || item.selectedSize}</span>` : ''}
-              ${item.color || item.selectedColor ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${item.color || item.selectedColor}</span>` : ''}
+              ${size ? `<span style="font-size: 12px; color: #555555; display: block;">Size: ${size}</span>` : ''}
+              ${color ? `<span style="font-size: 12px; color: #555555; display: block;">Color: ${color}</span>` : ''}
               <span style="font-size: 12px; color: #888888; display: block; margin-top: 4px;">Qty: ${item.quantity || 1}</span>
             </td>
           </tr>
@@ -268,7 +289,8 @@ export function generateAdminNotificationHtml({ orderId, customerName, customerE
         ${currencySymbol}${(Number(item.price || 0) * (item.quantity || 1)).toLocaleString()}
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   const safeAddress = shippingAddress || {};
   const addrLine1 = safeAddress.addressLine1 || safeAddress.line1 || '';

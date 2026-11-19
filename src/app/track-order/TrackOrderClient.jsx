@@ -270,7 +270,7 @@ export default function TrackOrderClient() {
                     <div key={i} className="trk-item">
                       <div className="trk-item-info">
                         <span className="trk-item-name">{item.name}</span>
-                        <span className="trk-item-meta">{item.size ? `Size: ${item.size} × ` : ''}Qty: {item.quantity || 1}</span>
+                        <span className="trk-item-meta">{item.color ? `Color: ${item.color} · ` : ''}{item.size ? `Size: ${item.size} · ` : ''}Qty: {item.quantity || 1}</span>
                       </div>
                       <span className="trk-item-price">{item.price === 0 ? 'FREE' : `₹${item.price * (item.quantity || 1)}`}</span>
                     </div>

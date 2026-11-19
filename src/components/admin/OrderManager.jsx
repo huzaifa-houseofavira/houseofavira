@@ -9,6 +9,80 @@ import { Loader2, X, Phone, Mail, MapPin, CreditCard, Clock, Package, AtSign, Se
 import StatusBadge from './shipping/StatusBadge';
 import Image from 'next/image';
 
+function OrderItemRow({ item, currencyCode }) {
+  const [imgError, setImgError] = useState(false);
+
+  const itemName = item.name || item.title || 'Product';
+  const itemQty = item.quantity || item.qty || 1;
+  const itemPrice = Number(item.price || 0);
+
+  // Comprehensive color & size resolution across legacy and current order formats
+  let size = item.size || item.selectedSize || '';
+  let color = item.color || item.selectedColor || item.variant || item.colorName || '';
+
+  // Fallback extraction if size or color missing (e.g. from cartItemId "productId-size-color")
+  if ((!size || !color) && item.cartItemId && typeof item.cartItemId === 'string') {
+    const parts = item.cartItemId.split('-');
+    if (parts.length >= 3) {
+      if (!size && parts[1]) size = parts[1];
+      if (!color && parts.slice(2).join('-')) color = parts.slice(2).join('-');
+    }
+  }
+
+  return (
+    <div className="flex gap-4 p-3.5 bg-[#F5F5F7] rounded-xl border border-[#d2d2d7]/30 items-start">
+      <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-[#e5e5ea] flex-shrink-0 border border-[#d2d2d7]/50 flex items-center justify-center">
+        {item.image && !imgError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.image}
+            alt={itemName}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-[#86868b] p-1 text-center">
+            <Package className="w-5 h-5 stroke-[1.5]" />
+            <span className="text-[9px] uppercase tracking-wider font-semibold mt-0.5">No Img</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <h5 className="text-sm font-semibold text-black break-words leading-tight" title={itemName}>
+          {itemName}
+        </h5>
+
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {color && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+              Color: {color}
+            </span>
+          )}
+          {size && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+              Size: {size}
+            </span>
+          )}
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-neutral-200/80 text-neutral-800">
+            Qty: {itemQty}
+          </span>
+        </div>
+
+        {!color && !size && item.cartItemId && item.cartItemId.includes('-') && (
+          <p className="text-[11px] text-[#86868b] mt-1.5 truncate">
+            Ref: {item.cartItemId}
+          </p>
+        )}
+      </div>
+
+      <div className="text-sm font-semibold text-black text-right shrink-0">
+        {formatCurrency(itemPrice * itemQty, currencyCode)}
+      </div>
+    </div>
+  );
+}
+
 export default function OrderManager({ onAddOrder }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -211,7 +285,7 @@ export default function OrderManager({ onAddOrder }) {
                     <div className="font-semibold text-black text-sm">
                       {formatCurrency(order.payable_amount, order.customer_country === 'USA' ? 'USD' : 'INR')}
                     </div>
-                    <div className="text-xs text-[#86868b]">{order.items_count} items</div>
+                    <div className="text-xs text-[#86868b]">{order.items_count || order.items?.length || 0} items</div>
                   </td>
                   <td className="py-4 px-6">
                     <StatusBadge status={order.order_status} />
@@ -342,34 +416,22 @@ export default function OrderManager({ onAddOrder }) {
                   {/* Order Items */}
                   <div className="bg-white p-5 rounded-xl border border-[#d2d2d7]/50 shadow-sm">
                     <h4 className="text-sm font-semibold text-black mb-4 uppercase tracking-wider flex items-center gap-2">
-                      <Package className="w-4 h-4" /> Ordered Items ({selectedOrder.items_count})
+                      <Package className="w-4 h-4" /> Ordered Items ({selectedOrder.items_count || selectedOrder.items?.length || 0})
                     </h4>
-                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-                      {selectedOrder.items?.map((item, idx) => (
-                        <div key={idx} className="flex gap-4 p-3 bg-[#F5F5F7] rounded-lg">
-                          {item.image && (
-                            <div className="relative w-16 h-16 rounded-md overflow-hidden bg-[#e5e5ea] flex-shrink-0">
-                              <Image 
-                                src={item.image} 
-                                alt={item.name} 
-                                fill 
-                                className="object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <h5 className="text-sm font-medium text-black line-clamp-1">{item.name}</h5>
-                            <div className="text-xs text-[#86868b] mt-1 space-y-0.5">
-                              {item.selectedSize && <p>Size: {item.selectedSize}</p>}
-                              {item.selectedColor && <p>Color: {item.selectedColor}</p>}
-                              <p>Qty: {item.quantity}</p>
-                            </div>
-                          </div>
-                          <div className="text-sm font-medium text-black text-right">
-                            {formatCurrency(item.price * item.quantity, (selectedOrder.shipping_address?.country || selectedOrder.customer_country) === 'USA' ? 'USD' : 'INR')}
-                          </div>
+                    <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2">
+                      {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                        selectedOrder.items.map((item, idx) => (
+                          <OrderItemRow
+                            key={idx}
+                            item={item}
+                            currencyCode={(selectedOrder.shipping_address?.country || selectedOrder.customer_country) === 'USA' ? 'USD' : 'INR'}
+                          />
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-xs text-[#86868b] bg-[#F5F5F7] rounded-lg">
+                          No items recorded for this order.
                         </div>
-                      ))}
+                      )}
                     </div>
 
                     {/* Order Summary */}

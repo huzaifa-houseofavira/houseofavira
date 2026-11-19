@@ -80,12 +80,24 @@ export async function POST(request) {
       weightStatus: data.weight_status || 'PENDING',
       estimatedOrderWeight: data.estimated_order_weight || 0,
       finalTotal: data.payable_amount || data.total_amount,
-      items: data.items.map(item => ({
-        name: item.name || item.title || 'Unknown Item',
-        size: item.size || item.selectedSize || '',
-        quantity: item.quantity || 1,
-        price: item.price || 0
-      }))
+      items: (data.items || []).map(item => {
+        let size = item.size || item.selectedSize || '';
+        let color = item.color || item.selectedColor || item.variant || item.colorName || '';
+        if ((!size || !color) && item.cartItemId && typeof item.cartItemId === 'string') {
+          const parts = item.cartItemId.split('-');
+          if (parts.length >= 3) {
+            if (!size && parts[1]) size = parts[1];
+            if (!color && parts.slice(2).join('-')) color = parts.slice(2).join('-');
+          }
+        }
+        return {
+          name: item.name || item.title || 'Unknown Item',
+          size,
+          color,
+          quantity: item.quantity || 1,
+          price: item.price || 0
+        };
+      })
     };
 
     return NextResponse.json({ success: true, order: orderData });
