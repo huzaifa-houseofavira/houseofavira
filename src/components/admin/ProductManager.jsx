@@ -641,42 +641,45 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
       const allCategories = [primaryCat];
       if (secondaryCat) allCategories.push(secondaryCat);
 
-      // 7. Build product data
+      // 7. Build product data safely (no undefined values)
       const productData = {
-        name,
-        price: parseFloat(price),
-        description,
-        section: sections[0] || '',
-        sections,
-        category: primaryCat,
-        categories: allCategories, // multi-category support
-        secondaryCategory: secondaryCat,
-        subcategories: primarySubs,
-        secondarySubcategories: secondarySubs,
+        name: (name || '').trim(),
+        price: parseFloat(price) || 0,
+        description: description || '',
+        section: sections[0] || 'New Arrivals',
+        sections: sections && sections.length > 0 ? sections : ['New Arrivals'],
+        category: primaryCat || '',
+        categories: allCategories || [],
+        secondaryCategory: secondaryCat || '',
+        subcategories: primarySubs || [],
+        secondarySubcategories: secondarySubs || [],
         subcategory: primarySubs[0] || '',
-        aesthetic: sections.includes('Shop Your Look') || sections.includes('Shop your aesthetic') ? aesthetic : [],
-        badge,
+        aesthetic: (sections.includes('Shop Your Look') || sections.includes('Shop your aesthetic')) ? (aesthetic || []) : [],
+        badge: badge || '',
         imageUrl: finalImageUrls[0] || '',
-        images: finalImageUrls,
-        sizeChartUrl: finalSizeChartUrl,
-        sizes, variants,
-        swatches: swatchesArray,
+        images: finalImageUrls || [],
+        sizeChartUrl: finalSizeChartUrl || '',
+        sizes: sizes || [],
+        variants: variants || [],
+        swatches: swatchesArray || [],
         extraColors: swatchesArray.length > 3 ? swatchesArray.length - 3 : 0,
-        inStock,
-        bestSeller,
+        inStock: inStock !== false,
+        bestSeller: bestSeller || false,
       };
+
+      const cleanProductData = JSON.parse(JSON.stringify(productData));
 
       if (initialProduct) {
         if (name !== initialProduct.name) {
-          productData.slug = await generateUniqueSlug(name, db, initialProduct.id);
+          cleanProductData.slug = await generateUniqueSlug(name, db, initialProduct.id);
         }
-        await updateDoc(doc(db, 'products', initialProduct.id), productData);
-        setSuccess('Product successfully updated!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + (productData.slug || initialProduct.slug) }) }).catch(()=>{});
+        await updateDoc(doc(db, 'products', initialProduct.id), cleanProductData);
+        setSuccess('Product successfully updated!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + (cleanProductData.slug || initialProduct.slug) }) }).catch(()=>{});
       } else {
-        productData.slug = await generateUniqueSlug(name, db);
-        productData.createdAt = serverTimestamp();
-        await addDoc(collection(db, 'products'), productData);
-        setSuccess('Product successfully added!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + productData.slug }) }).catch(()=>{});
+        cleanProductData.slug = await generateUniqueSlug(name, db);
+        cleanProductData.createdAt = serverTimestamp();
+        await addDoc(collection(db, 'products'), cleanProductData);
+        setSuccess('Product successfully added!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + cleanProductData.slug }) }).catch(()=>{});
 
         // Clear form + draft
         clearDraft();

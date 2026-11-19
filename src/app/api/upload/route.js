@@ -7,8 +7,8 @@ export async function POST(req) {
   try {
     const formData = await req.formData();
     const file = formData.get('image');
-    if (!file) {
-      return NextResponse.json({ success: false, error: "No image provided" }, { status: 400 });
+    if (!file || typeof file === 'string' || typeof file.arrayBuffer !== 'function') {
+      return NextResponse.json({ success: false, error: "No valid image file provided" }, { status: 400 });
     }
 
     if (!adminBucket) {
@@ -17,6 +17,10 @@ export async function POST(req) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    if (buffer.length === 0) {
+      return NextResponse.json({ success: false, error: "Empty image buffer" }, { status: 400 });
+    }
 
     // Determine extension & contentType
     const originalName = file.name || 'image.webp';
