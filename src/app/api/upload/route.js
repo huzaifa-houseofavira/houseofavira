@@ -36,7 +36,7 @@ export async function POST(req) {
     await fileRef.save(buffer, {
       metadata: {
         contentType,
-        cacheControl: 'public, max-age=31536000',
+        cacheControl: 'public, max-age=31536000, immutable',
       },
     });
 

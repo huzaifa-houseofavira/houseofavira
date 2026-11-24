@@ -66,13 +66,15 @@ export default function ProductCard({ product }) {
           className="absolute inset-0 z-10 flex overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {product.images && product.images.length > 0 ? (
-            product.images.map((img, idx) => (
+            product.images.slice(0, 2).map((img, idx) => (
               <div key={idx} className="relative w-full h-full flex-shrink-0 snap-center">
                 <Image
                   src={optimizeCloudinaryUrl(img, 600)}
                   alt={`${name} ${idx + 1}`}
                   fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover object-center pointer-events-none"
                 />
               </div>
@@ -82,7 +84,9 @@ export default function ProductCard({ product }) {
               src={optimizeCloudinaryUrl(imageUrl || (product.images && product.images[0]), 600)}
               alt={name}
               fill
-              sizes="(max-width: 768px) 50vw, 25vw"
+              loading="lazy"
+              decoding="async"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover object-center pointer-events-none"
             />
           )}
@@ -94,7 +98,9 @@ export default function ProductCard({ product }) {
             src={optimizeCloudinaryUrl(product.images[1], 600)}
             alt={`${name} secondary`}
             fill
-            sizes="(max-width: 768px) 50vw, 25vw"
+            loading="lazy"
+            decoding="async"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="hidden md:block object-cover object-center opacity-0 transition-opacity duration-500 group-hover:opacity-100 z-[15] pointer-events-none"
           />
         )}

@@ -43,6 +43,8 @@ const StickyScroll = forwardRef(({ products = [], children }, ref) => {
                           src={item.src}
                           alt="Product image"
                           fill
+                          loading="lazy"
+                          decoding="async"
                           sizes="(max-width: 768px) 33vw, 33vw"
                           className='transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1 object-cover align-bottom'
                         />
@@ -61,6 +63,8 @@ const StickyScroll = forwardRef(({ products = [], children }, ref) => {
                         src={item.src}
                         alt="Product image"
                         fill
+                        loading="lazy"
+                        decoding="async"
                         sizes="(max-width: 768px) 33vw, 33vw"
                         className='transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1 object-cover align-bottom'
                       />
@@ -80,6 +84,8 @@ const StickyScroll = forwardRef(({ products = [], children }, ref) => {
                         src={item.src}
                         alt="Product image"
                         fill
+                        loading="lazy"
+                        decoding="async"
                         sizes="(max-width: 768px) 33vw, 33vw"
                         className='transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1 object-cover align-bottom'
                       />

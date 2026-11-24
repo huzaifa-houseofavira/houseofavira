@@ -647,6 +647,7 @@ const sortSizes = (a, b) => {
                     alt={product.name} 
                     className="avira-item-img"
                     loading="lazy"
+                    decoding="async"
                   />
                   
                   <div className="avira-item-overlay">

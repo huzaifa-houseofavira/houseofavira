@@ -60,9 +60,23 @@ async function getCroppedBlob(imageSrc, pixelCrop) {
     img.src = imageSrc;
   });
 
+  // Limit maximum crop dimension to 1200px while maintaining aspect ratio
+  let targetWidth = pixelCrop.width;
+  let targetHeight = pixelCrop.height;
+  const maxDim = 1200;
+  if (targetWidth > maxDim || targetHeight > maxDim) {
+    if (targetWidth > targetHeight) {
+      targetHeight = Math.round((targetHeight * maxDim) / targetWidth);
+      targetWidth = maxDim;
+    } else {
+      targetWidth = Math.round((targetWidth * maxDim) / targetHeight);
+      targetHeight = maxDim;
+    }
+  }
+
   const canvas = document.createElement('canvas');
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
   const ctx = canvas.getContext('2d');
 
   ctx.drawImage(
@@ -70,19 +84,19 @@ async function getCroppedBlob(imageSrc, pixelCrop) {
     pixelCrop.x, pixelCrop.y,
     pixelCrop.width, pixelCrop.height,
     0, 0,
-    pixelCrop.width, pixelCrop.height
+    targetWidth, targetHeight
   );
 
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.92);
+    canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.82);
   });
 }
 
 /* ─────────────────────────────────────────────
    Utility: Client-side Image Compressor
 ───────────────────────────────────────────── */
-async function compressImage(file, maxMB = 0.5) {
-  if (file.size <= maxMB * 1024 * 1024) return file;
+async function compressImage(file, maxMB = 0.3) {
+  if (file.size <= maxMB * 1024 * 1024 && file.type === 'image/webp') return file;
 
   const image = await new Promise((resolve, reject) => {
     const img = new Image();
@@ -93,7 +107,7 @@ async function compressImage(file, maxMB = 0.5) {
   });
 
   let { width, height } = image;
-  const maxDim = 1600;
+  const maxDim = 1200;
   if (width > maxDim || height > maxDim) {
     if (width > height) {
       height = Math.round((height * maxDim) / width);
@@ -111,7 +125,7 @@ async function compressImage(file, maxMB = 0.5) {
   ctx.drawImage(image, 0, 0, width, height);
 
   const blob = await new Promise((resolve) => {
-    canvas.toBlob((b) => resolve(b), 'image/webp', 0.85);
+    canvas.toBlob((b) => resolve(b), 'image/webp', 0.82);
   });
 
   return new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
