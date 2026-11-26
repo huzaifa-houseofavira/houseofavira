@@ -48,7 +48,7 @@ export default function HowItWorks() {
                 <h3 className="text-[32px] md:text-[40px] leading-[36px] md:leading-[44px] font-gambetta italic font-normal text-[#000000] capitalize">
                   Place Your Order
                 </h3>
-                <Link href="/order-info/policies" aria-label="Read policies">
+                <Link prefetch={false} href="/order-info/policies" aria-label="Read policies">
                   <ArrowRight className="w-5 h-5 text-[#8A001A] hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
@@ -72,12 +72,12 @@ export default function HowItWorks() {
             <div className="flex-1 pt-2 pb-14">
               <div className="text-black/30 text-2xl md:text-3xl font-gambetta mb-1">02.</div>
               <div className="flex items-center justify-between mb-3 pr-2">
-                <Link href="/shipping" className="hover:opacity-70 transition-opacity cursor-pointer">
+                <Link prefetch={false} href="/shipping" className="hover:opacity-70 transition-opacity cursor-pointer">
                   <h3 className="text-[32px] md:text-[40px] leading-[36px] md:leading-[44px] font-gambetta italic font-normal text-[#000000] capitalize">
                     International Shipping
                   </h3>
                 </Link>
-                <Link href="/shipping" aria-label="Read shipping details">
+                <Link prefetch={false} href="/shipping" aria-label="Read shipping details">
                   <ArrowRight className="w-5 h-5 text-[#8A001A] hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
@@ -101,7 +101,7 @@ export default function HowItWorks() {
                 <h3 className="text-[32px] md:text-[40px] leading-[36px] md:leading-[44px] font-gambetta italic font-normal text-[#000000] capitalize">
                   Delivered to Your Doorstep
                 </h3>
-                <Link href="/order-info/policies" aria-label="Read policies">
+                <Link prefetch={false} href="/order-info/policies" aria-label="Read policies">
                   <ArrowRight className="w-5 h-5 text-[#8A001A] hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
@@ -118,7 +118,7 @@ export default function HowItWorks() {
           <p className="text-xs md:text-sm font-bold tracking-widest text-[#000000]/70 uppercase leading-relaxed font-perandory">
             * Please place an order only if you are comfortable with the international shipping process and charges.
           </p>
-          <Link href="/order-info/order-process" className="inline-block bg-[#000000] text-white px-8 py-3 rounded-full text-xs md:text-sm font-bold tracking-[0.2em] uppercase hover:bg-[#8A001A] transition-colors shadow-md font-[family-name:var(--font-dm-sans)]">
+          <Link prefetch={false} href="/order-info/order-process" className="inline-block bg-[#000000] text-white px-8 py-3 rounded-full text-xs md:text-sm font-bold tracking-[0.2em] uppercase hover:bg-[#8A001A] transition-colors shadow-md font-[family-name:var(--font-dm-sans)]">
             Read Full Shipping Details
           </Link>
         </div>

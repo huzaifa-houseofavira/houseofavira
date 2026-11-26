@@ -5,6 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Loader2, SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import Link from 'next/link';
+import { getCachedProducts } from '@/lib/products-cache';
 
 const COLOR_MAP = {
   black: '#000000',
@@ -87,8 +88,7 @@ export default function CategoryClient({ slug = [] }) {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products');
-        const productsList = await res.json();
+        const productsList = await getCachedProducts();
         setProducts(productsList);
       } catch (error) {
         console.error("Error fetching products:", error);

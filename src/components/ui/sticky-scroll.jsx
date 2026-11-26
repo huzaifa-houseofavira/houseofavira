@@ -37,7 +37,7 @@ const StickyScroll = forwardRef(({ products = [], children }, ref) => {
               {/* Left Column - scrolls normally */}
               <div className='grid gap-2 sm:gap-4 md:gap-6 col-span-4 self-start'>
                 {leftCol.map((item) => (
-                  <Link key={item.id} href={`/product/${item.slug || item.id}`} className="block group">
+                  <Link prefetch={false} key={item.id} href={`/product/${item.slug || item.id}`} className="block group">
                       <figure className='w-full h-40 sm:h-64 md:h-[32rem] relative overflow-hidden rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-500'>
                         <Image
                           src={item.src}
@@ -57,7 +57,7 @@ const StickyScroll = forwardRef(({ products = [], children }, ref) => {
               {/* Center Column - Sticky */}
               <div className='sticky top-0 h-screen w-full col-span-4 gap-2 sm:gap-4 md:gap-6 grid grid-rows-3 py-2 sm:py-4 md:py-6'>
                 {centerCol.map((item) => (
-                  <Link key={item.id} href={item.id.startsWith('static-') ? '/catalogue' : `/product/${item.slug || item.id}`} className="block group w-full h-full relative overflow-hidden rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-500">
+                  <Link prefetch={false} key={item.id} href={item.id.startsWith('static-') ? '/catalogue' : `/product/${item.slug || item.id}`} className="block group w-full h-full relative overflow-hidden rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-500">
                     <figure className='w-full h-full relative'>
                       <Image
                         src={item.src}
@@ -78,7 +78,7 @@ const StickyScroll = forwardRef(({ products = [], children }, ref) => {
               <div className='grid gap-2 sm:gap-4 md:gap-6 col-span-4 self-start mt-6 sm:mt-12 md:mt-32'>
                 {/* Adding margin-top to stagger the right column visually */}
                 {rightCol.map((item) => (
-                  <Link key={item.id} href={`/product/${item.slug || item.id}`} className="block group">
+                  <Link prefetch={false} key={item.id} href={`/product/${item.slug || item.id}`} className="block group">
                     <figure className='w-full h-48 sm:h-72 md:h-[36rem] relative overflow-hidden rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-500'>
                       <Image
                         src={item.src}

@@ -57,7 +57,14 @@ export async function GET(request, { params }) {
         });
     }
 
-    return NextResponse.json({ collection: collectionInfo, products });
+    return NextResponse.json(
+      { collection: collectionInfo, products },
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=120, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (error) {
     console.error('GET /api/collections/[slug] error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

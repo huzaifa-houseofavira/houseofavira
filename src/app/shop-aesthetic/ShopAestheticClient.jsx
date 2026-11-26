@@ -1,5 +1,6 @@
 'use client';
 import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
+import { getCachedProducts } from '@/lib/products-cache';
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
@@ -68,8 +69,8 @@ function ShopAestheticContent() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products');
-        const fetchedProducts = await res.json();
+        const fetchedProducts = await getCachedProducts();
+
 
         if (fetchedProducts.length > 0) {
           setProducts(fetchedProducts);
@@ -139,7 +140,7 @@ function ShopAestheticContent() {
                 <Link prefetch={false} href={`/product/${item.slug || item.id}`} key={item.id || idx} className="border-r border-[#000000]/20 group cursor-pointer flex flex-col relative bg-white block">
                   {/* Image Block */}
                   <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#FFFFFF]">
-                    <img src={item.imageUrl || item.img} alt={item.name || item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(item.imageUrl || item.img, 600)} alt={item.name || item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
 
                   {/* Hover Size Selector */}
                   <div className="absolute bottom-0 left-0 w-full bg-white/80 backdrop-blur-md p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex flex-col items-center">

@@ -70,6 +70,24 @@ export function proxy(request) {
     );
   }
 
+  // Ensure private, user-specific, payment, and admin APIs are NEVER edge-cached
+  const isPrivateApi =
+    pathname.startsWith('/api/orders') ||
+    pathname.startsWith('/api/shipping') ||
+    pathname.startsWith('/api/admin') ||
+    pathname.startsWith('/api/verify-payment') ||
+    pathname.startsWith('/api/razorpay') ||
+    pathname.startsWith('/api/track-order') ||
+    pathname.startsWith('/api/chatbot') ||
+    pathname.startsWith('/api/contact') ||
+    pathname.startsWith('/api/send-') ||
+    pathname.startsWith('/api/revalidate') ||
+    pathname.startsWith('/api/upload');
+
+  if (isPrivateApi) {
+    response.headers.set('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  }
+
   return response;
 }
 

@@ -1,5 +1,6 @@
 'use client';
 import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
+import { getCachedProducts } from '@/lib/products-cache';
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
@@ -60,8 +61,8 @@ function ShopByPriceContent() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products');
-        const fetchedProducts = await res.json();
+        const fetchedProducts = await getCachedProducts();
+
 
         if (fetchedProducts.length > 0) {
           setProducts(fetchedProducts);
@@ -141,7 +142,7 @@ function ShopByPriceContent() {
                 <Link prefetch={false} href={`/product/${item.slug || item.id}`} key={item.id || idx} className="border-r border-[#000000]/20 group cursor-pointer flex flex-col relative bg-white block">
                   {/* Image Block */}
                   <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#FFFFFF]">
-                    <img src={item.imageUrl || item.img || item.images?.[0]} alt={item.name || item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(item.imageUrl || item.img || item.images?.[0], 600)} alt={item.name || item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
 
                     {idx < 2 && (
                       <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[11px] font-semibold text-[#000000]">

@@ -15,6 +15,8 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import PriceDisplay from '@/components/PriceDisplay';
 import { createSearchIndex, getTopSuggestions, getDidYouMean, logSearchAnalytics } from '@/lib/search';
+import { getCachedProducts } from '@/lib/products-cache';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 const menuData = [
   { title: "Shop All", href: "/catalogue" },
@@ -185,8 +187,7 @@ export default function Header() {
     if (allProducts.length === 0 && !isSearching) {
       setIsSearching(true);
       try {
-        const res = await fetch('/api/products');
-        const productsList = await res.json();
+        const productsList = await getCachedProducts();
         setAllProducts(productsList);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -296,7 +297,7 @@ export default function Header() {
                 </button>
 
                 {/* Mobile Wishlist */}
-                <Link href="/wishlist" className={`${textClass} transition-colors relative lg:hidden mr-4`} aria-label="Wishlist">
+                <Link prefetch={false} href="/wishlist" className={`${textClass} transition-colors relative lg:hidden mr-4`} aria-label="Wishlist">
                   <Heart className="w-5 h-5" />
                   {wishlist.length > 0 && (
                     <span className="absolute -top-1.5 -right-2 bg-[#8A001A] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
@@ -306,7 +307,7 @@ export default function Header() {
                 </Link>
 
                 {/* Desktop Logo Image - Increased */}
-                <Link href="/" className="hidden lg:block relative z-10 flex-shrink-0">
+                <Link prefetch={false} href="/" className="hidden lg:block relative z-10 flex-shrink-0">
                   <img src="/LOGO.png" alt="House of Avira Logo" className="h-[180px] w-auto object-contain scale-110 origin-left" />
                 </Link>
               </div>
@@ -314,7 +315,7 @@ export default function Header() {
               {/* Center Area (Navigation Links on Desktop, Logo on Mobile) */}
               <div className="flex items-center justify-center flex-1 lg:w-2/4">
                 {/* Mobile Logo Image - Increased by 80% */}
-                <Link href="/" className="lg:hidden block pointer-events-auto mt-1">
+                <Link prefetch={false} href="/" className="lg:hidden block pointer-events-auto mt-1">
                   <img src="/LOGO.png" alt="House of Avira Logo" className="h-[162px] w-auto object-contain" />
                 </Link>
                 
@@ -323,7 +324,8 @@ export default function Header() {
                   {menuData.filter(item => !item.hideOnDesktop).map((item) => (
                     <div key={item.title} className="relative group flex items-center h-full py-6 whitespace-nowrap">
                       <Link 
-                        href={item.href} 
+                        href={item.href}
+                        prefetch={false} 
                         className={item.customClass ? `${item.customClass} transition-colors hover:opacity-80` : `text-[13px] xl:text-[14px] leading-[14px] font-dm-sans font-normal transition-colors ${textClass}`}
                       >
                         {item.title}
@@ -336,6 +338,7 @@ export default function Header() {
                             <div key={child.title} className="relative group/sub">
                               <Link 
                                 href={child.href}
+                                prefetch={false}
                                 className="flex justify-between items-center px-4 py-2 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]/80 hover:bg-[#000000]/5 hover:text-[#000000] capitalize"
                               >
                                 {child.title}
@@ -349,6 +352,7 @@ export default function Header() {
                                     <Link 
                                       key={subChild.title}
                                       href={subChild.href}
+                                      prefetch={false}
                                       className="block px-4 py-2 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]/80 hover:bg-[#000000]/5 hover:text-[#000000] capitalize"
                                     >
                                       {subChild.title}
@@ -472,14 +476,15 @@ export default function Header() {
                         <div className="flex flex-col gap-2">
                           {filteredProducts.map((product, idx) => (
                             <Link 
-                              href={`/product/${product.slug || product.id}`} 
+                              href={`/product/${product.slug || product.id}`}
+                              prefetch={false} 
                               key={product.id}
                               onClick={handleSearchSubmit}
                               className={`flex items-center gap-4 p-2 rounded-xl transition-colors group border ${selectedIndex === idx ? 'bg-[#FAFAFA] border-black/10' : 'hover:bg-[#FAFAFA] border-transparent hover:border-black/5'}`}
                             >
                               <div className="w-14 h-16 bg-neutral-100 rounded-md overflow-hidden flex-shrink-0 relative">
                                 {product.imageUrl || (product.images && product.images[0]) ? (
-                                  <img src={product.imageUrl || product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                  <img src={optimizeCloudinaryUrl(product.imageUrl || product.images[0], 200)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-neutral-400">
                                     <ShoppingBag className="w-4 h-4" />
@@ -505,14 +510,15 @@ export default function Header() {
                             <div className="flex flex-col gap-2">
                               {recentlyViewed.slice(0, 3).map((product, idx) => (
                                 <Link 
-                                  href={`/product/${product.slug || product.id}`} 
+                                  href={`/product/${product.slug || product.id}`}
+                              prefetch={false} 
                                   key={`recent-${product.id}`}
                                   onClick={handleSearchSubmit}
                                   className={`flex items-center gap-4 p-2 rounded-xl transition-colors group border hover:bg-[#FAFAFA] border-transparent hover:border-black/5`}
                                 >
                                   <div className="w-14 h-16 bg-neutral-100 rounded-md overflow-hidden flex-shrink-0 relative">
                                     {product.imageUrl || (product.images && product.images[0]) ? (
-                                      <img src={product.imageUrl || product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                      <img src={optimizeCloudinaryUrl(product.imageUrl || product.images[0], 200)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center text-neutral-400">
                                         <ShoppingBag className="w-4 h-4" />
@@ -536,14 +542,15 @@ export default function Header() {
                           <div className="flex flex-col gap-2">
                             {allProducts.slice(0, 4).map((product, idx) => (
                               <Link 
-                                href={`/product/${product.slug || product.id}`} 
+                                href={`/product/${product.slug || product.id}`}
+                              prefetch={false} 
                                 key={`suggested-${product.id}`}
                                 onClick={handleSearchSubmit}
                                 className={`flex items-center gap-4 p-2 rounded-xl transition-colors group border ${selectedIndex === idx ? 'bg-[#FAFAFA] border-black/10' : 'hover:bg-[#FAFAFA] border-transparent hover:border-black/5'}`}
                               >
                                 <div className="w-14 h-16 bg-neutral-100 rounded-md overflow-hidden flex-shrink-0 relative">
                                   {product.imageUrl || (product.images && product.images[0]) ? (
-                                    <img src={product.imageUrl || product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <img src={optimizeCloudinaryUrl(product.imageUrl || product.images[0], 200)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center text-neutral-400">
                                       <ShoppingBag className="w-4 h-4" />
@@ -565,6 +572,7 @@ export default function Header() {
                     {searchQuery && filteredProducts.length > 0 && (
                       <Link 
                         href={`/catalogue?search=${encodeURIComponent(searchQuery)}`}
+                        prefetch={false}
                         onClick={handleSearchSubmit}
                         className="mt-2 text-center text-[10px] uppercase tracking-widest font-bold py-3 border border-black rounded-xl hover:bg-black hover:text-white transition-colors"
                       >
@@ -583,7 +591,7 @@ export default function Header() {
                 <User className="w-5 h-5" />
               </button>
               
-              <Link href="/wishlist" className={`${textClass} transition-colors relative hidden lg:block`} aria-label="Wishlist">
+              <Link prefetch={false} href="/wishlist" className={`${textClass} transition-colors relative hidden lg:block`} aria-label="Wishlist">
                 <Heart className="w-5 h-5" />
                 {wishlist.length > 0 && (
                   <span className="absolute -top-1.5 -right-2 bg-[#8A001A] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
@@ -629,7 +637,7 @@ export default function Header() {
                 <User className="w-5 h-5" />
                 <span className="text-[10px] font-dm-sans uppercase tracking-[0.15em] font-bold">Account</span>
               </button>
-              <Link href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center gap-2 text-[#000000]/70 hover:text-[#000000] flex-1 py-3 bg-[#FAFAFA] border border-[#000000]/5 rounded-xl relative transition-colors">
+              <Link prefetch={false} href="/wishlist" onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center gap-2 text-[#000000]/70 hover:text-[#000000] flex-1 py-3 bg-[#FAFAFA] border border-[#000000]/5 rounded-xl relative transition-colors">
                 <Heart className="w-5 h-5" />
                 <span className="text-[10px] font-dm-sans uppercase tracking-[0.15em] font-bold">Wishlist</span>
                 {wishlist.length > 0 && (
@@ -669,14 +677,14 @@ export default function Header() {
                               </summary>
                               <div className="pl-4 pb-2 flex flex-col gap-2 border-l border-[#000000]/10 ml-1">
                                 {child.subChildren.map(subChild => (
-                                    <Link key={subChild.title} href={subChild.href} onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]/60 block hover:text-[#000000] capitalize">
+                                    <Link prefetch={false} key={subChild.title} href={subChild.href} onClick={() => setIsMobileMenuOpen(false)} className="py-2 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]/60 block hover:text-[#000000] capitalize">
                                     {subChild.title}
                                   </Link>
                                 ))}
                               </div>
                             </details>
                           ) : (
-                            <Link href={child.href} onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]/80 block hover:text-[#000000] capitalize">
+                            <Link prefetch={false} href={child.href} onClick={() => setIsMobileMenuOpen(false)} className="py-3 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]/80 block hover:text-[#000000] capitalize">
                               {child.title}
                             </Link>
                           )}
@@ -685,7 +693,7 @@ export default function Header() {
                     </div>
                   </details>
                 ) : (
-                  <Link href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={item.customClass ? `block px-6 py-4 ${item.customClass}` : `block px-6 py-4 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]`}>
+                  <Link prefetch={false} href={item.href} onClick={() => setIsMobileMenuOpen(false)} className={item.customClass ? `block px-6 py-4 ${item.customClass}` : `block px-6 py-4 text-[14px] leading-[14px] font-dm-sans font-normal text-[#000000]`}>
                     {item.title}
                   </Link>
                 )}

@@ -87,7 +87,7 @@ export default function WhyHouseOfAvira() {
                   }}
                 >
                   {isCenter ? (
-                    <Link href={`/product/${featuredSlug}`} className="block w-full h-full relative group outline-none">
+                    <Link prefetch={false} href={`/product/${featuredSlug}`} className="block w-full h-full relative group outline-none">
                       <img src={src} alt="Featured aesthetic" className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105" />
                     </Link>
                   ) : (

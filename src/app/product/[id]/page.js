@@ -2,6 +2,11 @@
 import ProductClient from './ProductClient';
 
 export const revalidate = 3600;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  return [];
+}
 
 // Helper function to fetch product by slug or id using Admin SDK
 async function getProduct(idOrSlug) {

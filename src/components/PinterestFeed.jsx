@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import StickyScroll from '@/components/ui/sticky-scroll';
+import { getCachedProducts } from '@/lib/products-cache';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 export default function PinterestFeed({ children, products = null }) {
   const [images, setImages] = useState([]);
@@ -12,7 +13,11 @@ export default function PinterestFeed({ children, products = null }) {
       const imgs = products.map(data => {
         const productImages = data.images || (data.imageUrl ? [data.imageUrl] : []);
         if (productImages[0]) {
-          return { src: productImages[0], id: data.id };
+          return {
+            src: optimizeCloudinaryUrl(productImages[0], 800),
+            id: data.id,
+            slug: data.slug,
+          };
         }
         return null;
       }).filter(Boolean);
@@ -22,12 +27,15 @@ export default function PinterestFeed({ children, products = null }) {
 
     async function fetchImages() {
       try {
-        const res = await fetch('/api/products?limit=30');
-        const products = await res.json();
-        const imgs = products.map(data => {
+        const fetchedProducts = await getCachedProducts({ limit: 30 });
+        const imgs = fetchedProducts.map(data => {
           const productImages = data.images || (data.imageUrl ? [data.imageUrl] : []);
           if (productImages[0]) {
-            return { src: productImages[0], id: data.id };
+            return {
+              src: optimizeCloudinaryUrl(productImages[0], 800),
+              id: data.id,
+              slug: data.slug,
+            };
           }
           return null;
         }).filter(Boolean);

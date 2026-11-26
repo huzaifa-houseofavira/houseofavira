@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
+import { getCachedProducts } from '@/lib/products-cache';
 
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useAuthStore } from '@/store/authStore';
@@ -102,8 +103,8 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
 
         // If no server-side data, fetch from cached API
         if (!productData) {
-          const res = await fetch('/api/products?limit=1000');
-          const allProducts = await res.json();
+          const allProducts = await getCachedProducts({ limit: 1000 });
+
           productData = allProducts.find(p => p.slug === params.id || p.id === params.id) || null;
         }
 
@@ -115,8 +116,8 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
 
           // Fetch Related Products from cached API
           try {
-            const res = await fetch('/api/products?limit=30');
-            let allProducts = await res.json();
+            const fetchedRelated = await getCachedProducts({ limit: 30 });
+            let allProducts = [...fetchedRelated];
             allProducts = allProducts.filter(p => p.id !== productData.id);
             
             // Shuffle array
@@ -507,7 +508,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                   <span className="font-aston-script text-[#8A001A]">Ordering</span>
                 </h3>
                 <div className="flex flex-col gap-3">
-                  <Link href="/order-info/order-process" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
+                  <Link prefetch={false} href="/order-info/order-process" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-colors duration-300">
                         <Package className="w-4 h-4" />
@@ -519,7 +520,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                     </span>
                   </Link>
 
-                  <Link href="/order-info/shipping" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
+                  <Link prefetch={false} href="/order-info/shipping" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-colors duration-300">
                         <Truck className="w-4 h-4" />
@@ -531,7 +532,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                     </span>
                   </Link>
 
-                  <Link href="/order-info/policies" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
+                  <Link prefetch={false} href="/order-info/policies" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-colors duration-300">
                         <FileText className="w-4 h-4" />
@@ -552,7 +553,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                   <p className="text-xs tracking-widest leading-loose uppercase font-bold text-neutral-600 max-w-sm" style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
                     * Please place an order only if you are comfortable with the international shipping process and charges.
                   </p>
-                  <Link href="/shipping" className="bg-black text-white px-8 py-3.5 rounded-full text-[12px] tracking-widest uppercase font-bold hover:bg-neutral-800 transition-colors shadow-sm" style={{ fontFamily: 'var(--font-perandory), "Perandory", serif' }}>
+                  <Link prefetch={false} href="/shipping" className="bg-black text-white px-8 py-3.5 rounded-full text-[12px] tracking-widest uppercase font-bold hover:bg-neutral-800 transition-colors shadow-sm" style={{ fontFamily: 'var(--font-perandory), "Perandory", serif' }}>
                     READ FULL SHIPPING DETAILS
                   </Link>
                 </div>
@@ -696,7 +697,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                 <span className="font-aston-script text-[#8A001A]">Ordering</span>
               </h3>
               <div className="flex flex-col gap-3">
-                <Link href="/order-info/order-process" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
+                <Link prefetch={false} href="/order-info/order-process" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-colors duration-300">
                       <Package className="w-4 h-4" />
@@ -708,7 +709,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                   </span>
                 </Link>
 
-                <Link href="/order-info/shipping" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
+                <Link prefetch={false} href="/order-info/shipping" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-colors duration-300">
                       <Truck className="w-4 h-4" />
@@ -720,7 +721,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                   </span>
                 </Link>
 
-                <Link href="/order-info/policies" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
+                <Link prefetch={false} href="/order-info/policies" className="group flex justify-between items-center p-5 rounded-2xl border border-neutral-200 bg-white hover:border-black hover:shadow-md transition-all duration-300">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-colors duration-300">
                       <FileText className="w-4 h-4" />
@@ -741,7 +742,7 @@ export default function ProductClient({ params: paramsPromise, initialProduct = 
                 <p className="text-sm tracking-widest leading-loose uppercase font-bold text-neutral-600 max-w-md" style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}>
                   * Please place an order only if you are comfortable with the international shipping process and charges.
                 </p>
-                <Link href="/shipping" className="bg-black text-white px-10 py-4 rounded-full text-[13px] tracking-widest uppercase font-bold hover:bg-neutral-800 transition-colors shadow-sm" style={{ fontFamily: 'var(--font-perandory), "Perandory", serif' }}>
+                <Link prefetch={false} href="/shipping" className="bg-black text-white px-10 py-4 rounded-full text-[13px] tracking-widest uppercase font-bold hover:bg-neutral-800 transition-colors shadow-sm" style={{ fontFamily: 'var(--font-perandory), "Perandory", serif' }}>
                   READ FULL SHIPPING DETAILS
                 </Link>
               </div>

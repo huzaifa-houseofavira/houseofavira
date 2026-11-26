@@ -466,7 +466,7 @@ export default function CartSlideOver() {
                       <p className="font-sans text-[8px] sm:text-[9px] whitespace-nowrap overflow-hidden text-ellipsis font-bold text-red-500 uppercase tracking-tight text-right w-full">
                         * THIS PRICE IS AN ESTIMATE AND MIGHT GO HIGHER OR LOWER AS PER CUSTOM DUTY AND TAXES.
                       </p>
-                      <Link href="/shipping" onClick={closeCart} className="font-sans text-[10px] font-bold text-blue-600 hover:text-blue-800 underline uppercase tracking-tight">
+                      <Link prefetch={false} href="/shipping" onClick={closeCart} className="font-sans text-[10px] font-bold text-blue-600 hover:text-blue-800 underline uppercase tracking-tight">
                         KNOW MORE ABOUT SHIPPING
                       </Link>
                     </div>
@@ -558,10 +558,10 @@ export default function CartSlideOver() {
                         <span className="uppercase tracking-widest font-bold">I AGREE WITH ALL</span>
                       </label>
                       <div className="flex flex-col items-center gap-2 mb-2 w-full">
-                          <Link href="/order-info" onClick={closeCart} className="text-[#007BFF] font-bold text-[11px] hover:underline uppercase tracking-wider" style={{ fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)' }}>
+                          <Link prefetch={false} href="/order-info" onClick={closeCart} className="text-[#007BFF] font-bold text-[11px] hover:underline uppercase tracking-wider" style={{ fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)' }}>
                             Terms and Conditions
                           </Link>
-                          <Link href="/quick-note" onClick={closeCart} className="text-[#8A001A] font-bold text-[10px] sm:text-[11px] hover:underline uppercase tracking-widest text-center" style={{ fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)' }}>
+                          <Link prefetch={false} href="/quick-note" onClick={closeCart} className="text-[#8A001A] font-bold text-[10px] sm:text-[11px] hover:underline uppercase tracking-widest text-center" style={{ fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)' }}>
                             Why we ask you to confirm these details?
                           </Link>
                         </div>

@@ -5,10 +5,13 @@ import nodemailer from 'nodemailer';
 export async function GET() {
   try {
     const status = await verifyEmailConfig();
-    return NextResponse.json({
-      status: status.success ? 'CONNECTED' : 'FAILED',
-      ...status,
-    });
+    return NextResponse.json(
+      {
+        status: status.success ? 'CONNECTED' : 'FAILED',
+        ...status,
+      },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     return NextResponse.json(
       { status: 'ERROR', error: error.message },

@@ -40,6 +40,25 @@ const nextConfig = {
     ],
   },
   async headers() {
+    const staticAssetCacheHeader = [
+      {
+        key: 'Cache-Control',
+        value: 'public, max-age=604800, stale-while-revalidate=2592000',
+      },
+    ];
+    const immutableCacheHeader = [
+      {
+        key: 'Cache-Control',
+        value: 'public, max-age=31536000, immutable',
+      },
+    ];
+    const privateNoCacheHeader = [
+      {
+        key: 'Cache-Control',
+        value: 'private, no-store, no-cache, must-revalidate',
+      },
+    ];
+
     return [
       {
         source: '/(.*)',
@@ -55,6 +74,35 @@ const nextConfig = {
           }
         ],
       },
+      // Static public assets: prevent Cloudflare/browser revalidation storms to Vercel
+      { source: '/:path*.png', headers: staticAssetCacheHeader },
+      { source: '/:path*.jpg', headers: staticAssetCacheHeader },
+      { source: '/:path*.jpeg', headers: staticAssetCacheHeader },
+      { source: '/:path*.webp', headers: staticAssetCacheHeader },
+      { source: '/:path*.svg', headers: staticAssetCacheHeader },
+      { source: '/:path*.mp4', headers: staticAssetCacheHeader },
+      { source: '/:path*.webm', headers: staticAssetCacheHeader },
+      { source: '/images/:path*', headers: staticAssetCacheHeader },
+      { source: '/shipping/:path*', headers: staticAssetCacheHeader },
+      { source: '/pricing/:path*', headers: staticAssetCacheHeader },
+      { source: '/videos/:path*', headers: staticAssetCacheHeader },
+      // Fonts are versioned/static assets — safe for immutable 1-year caching
+      { source: '/fonts/:path*', headers: immutableCacheHeader },
+      { source: '/:path*.woff2', headers: immutableCacheHeader },
+      { source: '/:path*.otf', headers: immutableCacheHeader },
+      { source: '/:path*.ttf', headers: immutableCacheHeader },
+      // Never cache private/personalized/admin pages at Cloudflare or browser edge
+      { source: '/admin', headers: privateNoCacheHeader },
+      { source: '/admin/:path*', headers: privateNoCacheHeader },
+      { source: '/account', headers: privateNoCacheHeader },
+      { source: '/checkout', headers: privateNoCacheHeader },
+      { source: '/wishlist', headers: privateNoCacheHeader },
+      { source: '/order-success', headers: privateNoCacheHeader },
+      { source: '/shipping-success', headers: privateNoCacheHeader },
+      { source: '/auth/:path*', headers: privateNoCacheHeader },
+      { source: '/api/orders/:path*', headers: privateNoCacheHeader },
+      { source: '/api/shipping/:path*', headers: privateNoCacheHeader },
+      { source: '/api/admin/:path*', headers: privateNoCacheHeader },
     ];
   },
 };

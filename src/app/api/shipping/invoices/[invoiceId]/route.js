@@ -33,9 +33,12 @@ export async function GET(request, { params }) {
       );
     }
 
-    return NextResponse.json({
-      invoice: { id: invoiceDoc.id, ...invoiceDoc.data() },
-    });
+    return NextResponse.json(
+      {
+        invoice: { id: invoiceDoc.id, ...invoiceDoc.data() },
+      },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error fetching invoice:', error);
     return NextResponse.json(

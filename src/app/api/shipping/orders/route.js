@@ -47,7 +47,10 @@ export async function GET(request) {
       orders = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     }
 
-    return NextResponse.json({ success: true, orders });
+    return NextResponse.json(
+      { success: true, orders },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error fetching shipping orders:', error);
     return NextResponse.json(

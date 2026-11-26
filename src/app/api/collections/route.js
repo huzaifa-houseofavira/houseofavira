@@ -20,7 +20,11 @@ export async function GET() {
       };
     });
     collections.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    return NextResponse.json(collections);
+    return NextResponse.json(collections, {
+      headers: {
+        'Cache-Control': 'public, max-age=120, s-maxage=300, stale-while-revalidate=600',
+      },
+    });
   } catch (error) {
     console.error('GET /api/collections error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

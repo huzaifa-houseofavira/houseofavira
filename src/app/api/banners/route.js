@@ -12,7 +12,7 @@ export async function GET() {
   if (bannersCache && (now - cacheTimestamp) < CACHE_TTL) {
     return Response.json(bannersCache, {
       headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',
+        'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1200',
       },
     });
   }
@@ -45,7 +45,7 @@ export async function GET() {
 
     return Response.json(banners, {
       headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',
+        'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1200',
       },
     });
   } catch (error) {

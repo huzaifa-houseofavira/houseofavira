@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useRouter } from 'next/navigation';
 import { X, Ruler, ShoppingCart } from 'lucide-react';
 import PriceDisplay from '@/components/PriceDisplay';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 export default function ProductOptionsModal() {
   const router = useRouter();
@@ -128,7 +129,7 @@ export default function ProductOptionsModal() {
             <div className="flex items-start gap-4 mb-6">
               <div className="w-[100px] h-[130px] sm:w-[120px] sm:h-[160px] rounded-xl overflow-hidden bg-neutral-100 shrink-0 shadow-sm border border-neutral-100">
                 {currentImage ? (
-                  <img src={currentImage} alt={product.name || product.title} className="w-full h-full object-cover" />
+                  <img src={optimizeCloudinaryUrl(currentImage, 400)} alt={product.name || product.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-neutral-300">No Image</div>
                 )}
@@ -174,7 +175,7 @@ export default function ProductOptionsModal() {
                         >
                           {hasSwatchImage && (
                             <img 
-                              src={swatch.imageUrl} 
+                              src={optimizeCloudinaryUrl(swatch.imageUrl, 200)} 
                               alt={swatch.colorName}
                               className="w-full h-full object-cover"
                             />
@@ -367,7 +368,7 @@ export default function ProductOptionsModal() {
             <div className="p-6 flex items-center justify-center min-h-[300px]">
               {product.sizeChartUrl ? (
                 <img 
-                  src={product.sizeChartUrl} 
+                  src={optimizeCloudinaryUrl(product.sizeChartUrl, 800)} 
                   alt={`${product.name || product.title} Size Guide`} 
                   className="max-w-full max-h-[70vh] object-contain"
                 />

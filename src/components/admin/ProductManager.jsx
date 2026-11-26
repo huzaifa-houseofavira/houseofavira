@@ -6,6 +6,7 @@ import { deleteImageFromCloudinary } from '@/app/actions/uploadActions';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { generateUniqueSlug } from '@/lib/slugify';
+import { invalidateProductsCache } from '@/lib/products-cache';
 import {
   UploadCloud, X, Image as ImageIcon, Tag, Loader2,
   CheckCircle2, Plus, Trash2, GripVertical, Crop,
@@ -688,11 +689,13 @@ export default function ProductManager({ initialProduct = null, onSuccess }) {
           cleanProductData.slug = await generateUniqueSlug(name, db, initialProduct.id);
         }
         await updateDoc(doc(db, 'products', initialProduct.id), cleanProductData);
+        invalidateProductsCache();
         setSuccess('Product successfully updated!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + (cleanProductData.slug || initialProduct.slug) }) }).catch(()=>{});
       } else {
         cleanProductData.slug = await generateUniqueSlug(name, db);
         cleanProductData.createdAt = serverTimestamp();
         await addDoc(collection(db, 'products'), cleanProductData);
+        invalidateProductsCache();
         setSuccess('Product successfully added!'); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/catalogue' }) }).catch(()=>{}); fetch('/api/revalidate', { method: 'POST', body: JSON.stringify({ path: '/product/' + cleanProductData.slug }) }).catch(()=>{});
 
         // Clear form + draft

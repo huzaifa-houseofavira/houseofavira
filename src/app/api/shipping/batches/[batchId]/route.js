@@ -49,7 +49,10 @@ export async function GET(request, { params }) {
       ...doc.data(),
     }));
 
-    return NextResponse.json({ batch, orders, allocations });
+    return NextResponse.json(
+      { batch, orders, allocations },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error fetching batch:', error);
     return NextResponse.json(

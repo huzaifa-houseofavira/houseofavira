@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getCachedBanners } from '@/lib/products-cache';
+import { optimizeCloudinaryUrl } from '@/lib/image-optimizer';
 
 const defaultDesktopSlides = [
   {
@@ -43,35 +45,72 @@ export default function HeroCarousel() {
   const [currentDesktopSlide, setCurrentDesktopSlide] = useState(0);
   const [currentMobileSlide, setCurrentMobileSlide] = useState(0);
   const [mobileSlides, setMobileSlides] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mountedDesktop, setMountedDesktop] = useState(() => new Set([0, 1]));
+  const [mountedMobile, setMountedMobile] = useState(() => new Set([0, 1]));
 
   useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const updateViewport = () => setIsMobile(mq.matches);
+    updateViewport();
+    mq.addEventListener('change', updateViewport);
+    return () => mq.removeEventListener('change', updateViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || mobileSlides.length > 0) return;
     async function fetchMobileBanners() {
       try {
-        const res = await fetch('/api/banners');
-        const fetchedBanners = await res.json();
+        const fetchedBanners = await getCachedBanners();
         setMobileSlides(fetchedBanners);
       } catch (error) {
         console.error("Error fetching mobile banners:", error);
       }
     }
     fetchMobileBanners();
-  }, []);
+  }, [isMobile, mobileSlides.length]);
 
   useEffect(() => {
+    if (isMobile) return;
     const desktopTimer = setInterval(() => {
       setCurrentDesktopSlide((prev) => (prev === defaultDesktopSlides.length - 1 ? 0 : prev + 1));
     }, 5000);
 
     return () => clearInterval(desktopTimer);
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
+    if (!isMobile || mobileSlides.length <= 1) return;
     const mobileTimer = setInterval(() => {
       setCurrentMobileSlide((prev) => (prev === mobileSlides.length - 1 ? 0 : prev + 1));
     }, 2000);
 
     return () => clearInterval(mobileTimer);
-  }, [mobileSlides]);
+  }, [isMobile, mobileSlides.length]);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const nextIdx = (currentDesktopSlide + 1) % defaultDesktopSlides.length;
+    setMountedDesktop((prev) => {
+      if (prev.has(currentDesktopSlide) && prev.has(nextIdx)) return prev;
+      const next = new Set(prev);
+      next.add(currentDesktopSlide);
+      next.add(nextIdx);
+      return next;
+    });
+  }, [currentDesktopSlide, isMobile]);
+
+  useEffect(() => {
+    if (!isMobile || mobileSlides.length === 0) return;
+    const nextIdx = (currentMobileSlide + 1) % mobileSlides.length;
+    setMountedMobile((prev) => {
+      if (prev.has(currentMobileSlide) && prev.has(nextIdx)) return prev;
+      const next = new Set(prev);
+      next.add(currentMobileSlide);
+      next.add(nextIdx);
+      return next;
+    });
+  }, [currentMobileSlide, isMobile, mobileSlides.length]);
 
   return (
     <section className="relative w-full h-[100dvh] md:h-[calc(100vh-32px)] -mt-[148px] overflow-hidden bg-black">
@@ -79,6 +118,7 @@ export default function HeroCarousel() {
       <div className="hidden md:block w-full h-full">
         {defaultDesktopSlides.map((slide, index) => {
           const isActive = index === currentDesktopSlide;
+          if (!mountedDesktop.has(index)) return null;
           return (
             <div 
               key={slide.id}
@@ -90,7 +130,7 @@ export default function HeroCarousel() {
                 fill
                 sizes="100vw"
                 quality={60}
-                priority={index === 0}
+                priority={!isMobile && index === 0}
                 className="object-cover object-center"
               />
               <div className="absolute inset-0 bg-black/20"></div>
@@ -113,6 +153,7 @@ export default function HeroCarousel() {
                     )}
                     
                     <Link 
+                      prefetch={false}
                       href={slide.link || '/catalogue'}
                       className="mt-16 inline-flex items-center justify-center bg-white text-black px-12 py-5 hover:bg-black hover:text-white transition-all duration-500 font-bold tracking-[0.3em] uppercase text-xs md:text-sm shadow-2xl"
                     >
@@ -131,13 +172,14 @@ export default function HeroCarousel() {
       <div className="block md:hidden w-full h-full bg-black">
         {mobileSlides.map((slide, index) => {
           const isActive = index === currentMobileSlide;
+          if (!mountedMobile.has(index)) return null;
           return (
             <div 
               key={slide.id}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
             >
               <Image 
-                src={slide.mobileImage || slide.imageUrl}
+                src={optimizeCloudinaryUrl(slide.mobileImage || slide.imageUrl, 900)}
                 alt="House of Avira Banner"
                 fill
                 sizes="100vw"
@@ -155,6 +197,7 @@ export default function HeroCarousel() {
                     <span className="font-perandory text-[14px] font-bold tracking-[0.15em] mt-2">Finds</span>
                   </h1>
                   <Link 
+                    prefetch={false}
                     href={slide.link || '/catalogue'}
                     className="inline-flex items-center justify-center gap-2.5 bg-white/95 backdrop-blur-sm text-black px-10 py-4 w-full sm:w-auto text-center border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all hover:bg-white hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] active:scale-[0.98]"
                   >

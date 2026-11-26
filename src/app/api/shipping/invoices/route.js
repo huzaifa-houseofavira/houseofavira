@@ -38,7 +38,10 @@ export async function GET(request) {
       ...doc.data(),
     }));
 
-    return NextResponse.json({ invoices });
+    return NextResponse.json(
+      { invoices },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error fetching shipping invoices:', error);
     return NextResponse.json(

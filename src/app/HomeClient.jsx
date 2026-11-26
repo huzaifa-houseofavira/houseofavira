@@ -19,6 +19,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Plane } from 'lucide-react';
 import PriceDisplay from '@/components/PriceDisplay';
+import { getCachedProducts } from '@/lib/products-cache';
 
 const categories = [
   { title: "Dresses", img: "/images/categories/dress.png", link: "/category/women/dresses" },
@@ -140,8 +141,7 @@ export default function HomeClient() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('/api/products', { cache: 'no-store' });
-        const fetchedProducts = await res.json();
+        const fetchedProducts = await getCachedProducts();
 
         // If empty, fall back to dummy data so layout isn't broken
         if (fetchedProducts.length > 0) {
@@ -289,7 +289,7 @@ export default function HomeClient() {
             { img: '/images/looks/festival-concerts.png', title: 'FESTIVALS / CONCERTS' },
             { img: '/images/looks/trendy.png', title: 'TRENDY' }
           ].map((look, idx) => (
-            <Link href={`/shop-your-look?category=${encodeURIComponent(look.title.toLowerCase())}`} key={idx} className="relative group overflow-hidden block w-full h-[60vh] md:h-full cursor-pointer">
+            <Link prefetch={false} href={`/shop-your-look?category=${encodeURIComponent(look.title.toLowerCase())}`} key={idx} className="relative group overflow-hidden block w-full h-[60vh] md:h-full cursor-pointer">
               <Image src={look.img} alt={look.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover object-center transition-transform duration-[2000ms] ease-out group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:from-black/60 md:via-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
               <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 z-10">
@@ -301,7 +301,7 @@ export default function HomeClient() {
 
         {/* Footer */}
         <div className="w-full flex justify-center items-center py-10 md:py-16">
-          <Link href="/catalogue" className="border border-white text-white px-8 py-3 text-sm md:text-base font-bold tracking-[0.1em] md:tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-300 font-perandory">
+          <Link prefetch={false} href="/catalogue" className="border border-white text-white px-8 py-3 text-sm md:text-base font-bold tracking-[0.1em] md:tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-300 font-perandory">
             SEE ALL STYLES
           </Link>
         </div>
@@ -321,6 +321,7 @@ export default function HomeClient() {
             <Link
               key={idx}
               href={cat.link}
+              prefetch={false}
               className="relative aspect-[3/4] block overflow-hidden bg-gray-200 group cursor-pointer"
             >
               <Image
@@ -359,6 +360,7 @@ export default function HomeClient() {
               <Link
                 key={idx}
                 href={`/shop-aesthetic?category=${encodeURIComponent(cat.title)}`}
+                prefetch={false}
                 className="relative aspect-[3/4] block overflow-hidden bg-gray-100 group cursor-pointer rounded-2xl md:rounded-none transition-all hover:ring-2 hover:ring-[#000000]"
               >
                 <Image

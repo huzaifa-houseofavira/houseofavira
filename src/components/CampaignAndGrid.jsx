@@ -25,7 +25,7 @@ export default function CampaignAndGrid() {
             <h2 className="font-serif text-4xl md:text-7xl mb-6 drop-shadow-md">
               Curated For The Unforgettable
             </h2>
-            <Link href="/catalogue" className="border-b border-white pb-1 text-xs uppercase tracking-widest hover:opacity-70 transition-opacity drop-shadow-md">
+            <Link prefetch={false} href="/catalogue" className="border-b border-white pb-1 text-xs uppercase tracking-widest hover:opacity-70 transition-opacity drop-shadow-md">
               explore the unmatched imported collection
             </Link>
           </div>
@@ -38,6 +38,7 @@ export default function CampaignAndGrid() {
         <div className="grid grid-cols-2 md:flex md:flex-row w-full md:h-[70vh]">
           {items.map((item, idx) => (
             <Link
+              prefetch={false}
               href={`/shop-by-price?price=${item.priceValue}`}
               key={idx}
               className={`w-full md:w-1/4 flex flex-col md:justify-end border-b md:border-b-0 border-r md:border-r-0 border-[#000000]/10 block`}
@@ -64,7 +65,7 @@ export default function CampaignAndGrid() {
         {/* The White Text Bar at the Bottom (Desktop Only) */}
         <div className="hidden md:flex w-full flex-row bg-white border-b border-[#000000]/10">
           {items.map((item, idx) => (
-            <Link href={`/shop-by-price?price=${item.priceValue}`} key={idx} className="w-1/4 p-5 hover:bg-[#000000]/5 transition-colors block cursor-pointer">
+            <Link prefetch={false} href={`/shop-by-price?price=${item.priceValue}`} key={idx} className="w-1/4 p-5 hover:bg-[#000000]/5 transition-colors block cursor-pointer">
               <h3 className="font-gambetta italic text-[15px] tracking-tight w-full text-left uppercase text-[#000000]">
                 {item.title}
               </h3>

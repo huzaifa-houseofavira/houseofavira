@@ -26,7 +26,10 @@ export async function GET(request) {
     // Sort descending by created_at
     orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    return NextResponse.json({ success: true, orders });
+    return NextResponse.json(
+      { success: true, orders },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error fetching user orders:', error);
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });

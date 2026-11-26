@@ -25,22 +25,22 @@ export default function Footer() {
             <div>
               <h5 className="font-perandory text-[10px] md:text-xs uppercase tracking-[0.2em] mb-6 text-neutral-500">Explore</h5>
               <ul className="space-y-4 text-sm font-lato text-neutral-300">
-                <li><Link href="/catalogue" className="hover:text-white transition-colors footer-link-animate">The Archive</Link></li>
-                <li><Link href="/#new-arrivals" className="hover:text-white transition-colors footer-link-animate">New Arrivals</Link></li>
-                <li><Link href="/category/men" className="hover:text-white transition-colors footer-link-animate">Men</Link></li>
-                <li><Link href="/category/women" className="hover:text-white transition-colors footer-link-animate">Women</Link></li>
-                <li><Link href="/category/accessories" className="hover:text-white transition-colors footer-link-animate">Accessories</Link></li>
+                <li><Link prefetch={false} href="/catalogue" className="hover:text-white transition-colors footer-link-animate">The Archive</Link></li>
+                <li><Link prefetch={false} href="/#new-arrivals" className="hover:text-white transition-colors footer-link-animate">New Arrivals</Link></li>
+                <li><Link prefetch={false} href="/category/men" className="hover:text-white transition-colors footer-link-animate">Men</Link></li>
+                <li><Link prefetch={false} href="/category/women" className="hover:text-white transition-colors footer-link-animate">Women</Link></li>
+                <li><Link prefetch={false} href="/category/accessories" className="hover:text-white transition-colors footer-link-animate">Accessories</Link></li>
               </ul>
             </div>
             
             <div>
               <h5 className="font-perandory text-[10px] md:text-xs uppercase tracking-[0.2em] mb-6 text-neutral-500">Support</h5>
               <ul className="space-y-4 text-sm font-lato text-neutral-300">
-                <li><Link href="/track-order" className="hover:text-white transition-colors footer-link-animate">Track Order</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors footer-link-animate">Ordering Guide </Link></li>
-                <li><Link href="/order-info/shipping" className="hover:text-white transition-colors footer-link-animate">Shipping &amp; Customs</Link></li>
-                <li><Link href="/policy" className="hover:text-white transition-colors footer-link-animate">Policies</Link></li>
-                <li><Link href="/#contact-studio" className="hover:text-white transition-colors footer-link-animate">Contact Studio</Link></li>
+                <li><Link prefetch={false} href="/track-order" className="hover:text-white transition-colors footer-link-animate">Track Order</Link></li>
+                <li><Link prefetch={false} href="/how-it-works" className="hover:text-white transition-colors footer-link-animate">Ordering Guide </Link></li>
+                <li><Link prefetch={false} href="/order-info/shipping" className="hover:text-white transition-colors footer-link-animate">Shipping &amp; Customs</Link></li>
+                <li><Link prefetch={false} href="/policy" className="hover:text-white transition-colors footer-link-animate">Policies</Link></li>
+                <li><Link prefetch={false} href="/#contact-studio" className="hover:text-white transition-colors footer-link-animate">Contact Studio</Link></li>
               </ul>
             </div>
 
@@ -82,8 +82,8 @@ export default function Footer() {
         {/* Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center py-8 border-t border-white/10 text-xs text-neutral-500 font-lato max-w-[1400px] mx-auto gap-4 relative z-10">
           <div className="flex gap-6 order-2 md:order-1">
-            <Link href="/privacy-policy" className="hover:text-white transition-colors footer-link-animate">Privacy Policy</Link>
-            <Link href="/order-info/policies" className="hover:text-white transition-colors footer-link-animate">Terms of Service</Link>
+            <Link prefetch={false} href="/privacy-policy" className="hover:text-white transition-colors footer-link-animate">Privacy Policy</Link>
+            <Link prefetch={false} href="/order-info/policies" className="hover:text-white transition-colors footer-link-animate">Terms of Service</Link>
           </div>
           
           <p className="order-3 md:order-2">© {new Date().getFullYear()} House of Avira. All rights reserved.</p>

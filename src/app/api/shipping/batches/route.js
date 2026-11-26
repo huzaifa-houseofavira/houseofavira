@@ -22,7 +22,10 @@ export async function GET() {
       ...doc.data(),
     }));
 
-    return NextResponse.json({ batches });
+    return NextResponse.json(
+      { batches },
+      { headers: { 'Cache-Control': 'private, no-store, no-cache, must-revalidate' } }
+    );
   } catch (error) {
     console.error('Error fetching batches:', error);
     return NextResponse.json(

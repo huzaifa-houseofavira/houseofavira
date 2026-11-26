@@ -10,6 +10,10 @@ export async function GET(request) {
   const maxItems = parseInt(searchParams.get('limit') || '1000', 10);
   const noCache = searchParams.get('nocache') === 'true' || searchParams.has('_t');
 
+  const cacheHeader = noCache
+    ? 'private, no-store, no-cache, must-revalidate'
+    : 'public, max-age=60, s-maxage=300, stale-while-revalidate=600';
+
   const now = Date.now();
 
   // Return cached data if fresh
@@ -17,7 +21,7 @@ export async function GET(request) {
     const sliced = productsCache.slice(0, maxItems);
     return Response.json(sliced, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Cache-Control': cacheHeader,
       },
     });
   }
@@ -50,7 +54,7 @@ export async function GET(request) {
     const sliced = products.slice(0, maxItems);
     return Response.json(sliced, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Cache-Control': cacheHeader,
       },
     });
   } catch (error) {
@@ -59,7 +63,7 @@ export async function GET(request) {
     if (productsCache) {
       return Response.json(productsCache.slice(0, maxItems), {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+          'Cache-Control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=120',
         },
       });
     }
