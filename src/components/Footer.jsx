@@ -48,7 +48,7 @@ export default function Footer() {
               <h5 className="font-perandory text-[10px] md:text-xs uppercase tracking-[0.2em] mb-6 text-neutral-500">Connect</h5>
               <ul className="space-y-4 text-sm font-lato text-neutral-300">
                 <li>
-                  <a href="https://www.instagram.com/houseof.avira/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors footer-link-animate flex items-center gap-2 group">
+                  <a href="https://www.instagram.com/houseof_avira/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors footer-link-animate flex items-center gap-2 group">
                     <svg className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>

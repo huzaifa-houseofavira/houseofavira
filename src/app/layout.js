@@ -164,7 +164,7 @@ export default function RootLayout({ children }) {
           }
         ],
         "sameAs": [
-          "https://www.instagram.com/houseofavira"
+          "https://www.instagram.com/houseof_avira/"
         ],
         "knowsAbout": [
           "Imported Fashion",

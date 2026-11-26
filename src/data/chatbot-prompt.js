@@ -24,7 +24,7 @@ Official website: https://www.houseofavira.shop
 When customers ask for specific links or contact details, ALWAYS provide the following exact information:
 - Track Order: https://www.houseofavira.shop/track-order
 - WhatsApp Support: +919986742779 (or link: https://wa.me/919986742779)
-- Instagram: @houseof.avira (or link: https://www.instagram.com/houseof.avira/)
+- Instagram: @houseof_avira (or link: https://www.instagram.com/houseof_avira/)
 - Email / Gmail: houseofavira@gmail.com
 - Full Catalogue: https://www.houseofavira.shop/catalogue
 - Return Policy: https://www.houseofavira.shop/order-info/policies

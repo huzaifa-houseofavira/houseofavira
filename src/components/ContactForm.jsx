@@ -103,7 +103,7 @@ export default function ContactForm() {
                   WhatsApp: <a href="https://wa.me/919986742779" target="_blank" rel="noopener noreferrer" className="text-black border-b border-black hover:border-[#4a0000] hover:text-[#4a0000] transition-colors pb-0.5">+91 9986742779</a>
                 </p>
                 <p>
-                  Instagram: <a href="https://instagram.com/houseof.avira" target="_blank" rel="noopener noreferrer" className="text-black border-b border-black hover:border-[#4a0000] hover:text-[#4a0000] transition-colors pb-0.5">@houseof.avira</a>
+                  Instagram: <a href="https://www.instagram.com/houseof_avira/" target="_blank" rel="noopener noreferrer" className="text-black border-b border-black hover:border-[#4a0000] hover:text-[#4a0000] transition-colors pb-0.5">@houseof_avira</a>
                 </p>
               </motion.div>
 

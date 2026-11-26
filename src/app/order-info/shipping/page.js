@@ -461,7 +461,7 @@ export default function ShippingPage() {
               </div>
 
               <a 
-                href="https://www.instagram.com/houseof.avira/" 
+                href="https://www.instagram.com/houseof_avira/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="relative z-10 whitespace-nowrap inline-flex items-center gap-3 px-8 py-4 bg-black text-white rounded-full font-bold uppercase tracking-widest text-sm hover:scale-105 hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:shadow-[0_10px_30px_rgba(238,42,123,0.3)] transition-all duration-300"
@@ -526,7 +526,7 @@ export default function ShippingPage() {
               <RevealSection delay={0.4}>
                 <div className="mt-8">
                   <a
-                    href="https://www.instagram.com/channel/Aba8mUXowU29ORRh/"
+                    href="https://www.instagram.com/houseof_avira/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1a1a1a] text-white rounded-xl transition-all duration-300 hover:bg-[#8A001A] hover:shadow-lg hover:shadow-[#8A001A]/20 hover:-translate-y-1 w-full sm:w-auto"
